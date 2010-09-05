@@ -24,7 +24,7 @@ Features:
 
 Caveats:
 
-It is recommended to set |g:rcom#server| and |g:rcom#reuse|.
+It is recommended to set |g:rcom#server| and |g:rcom#reuse| = 1.
 
 Setting |g:rcom#reuse| = 1 is more stable. Depending on your version of 
 ruby & R & rcom, g:rcom#reuse = 0 could make your gvim crash.
@@ -97,7 +97,7 @@ variable is set, an instance of gvim will be started that acts as a
 proxy so that the instance used for editing the R file won't be 
 blocked.
 
-Also available via git: http://github.com/tomtom/vimtlib/
+Also available via git: http://github.com/tomtom/rcom_vim
 
 
 ========================================================================

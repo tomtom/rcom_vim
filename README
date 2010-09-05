@@ -23,7 +23,7 @@ Features:
 
 Caveats:
 
-It is recommended to set |g:rcom#server| and |g:rcom#reuse|.
+It is recommended to set |g:rcom#server| and |g:rcom#reuse| = 1.
 
 Setting |g:rcom#reuse| = 1 is more stable. Depending on your version of 
 ruby & R & rcom, g:rcom#reuse = 0 could make your gvim crash.
