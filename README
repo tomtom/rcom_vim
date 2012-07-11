@@ -1,11 +1,10 @@
-This plugin is still experimental. During development it made vim hang 
-from time to time. Please report any problem to the author. Thanks.
+The rcom ftplugin uses one of the following methods to evaluate R code:
 
-The rcom ftplugin uses the RCom interface (http://rcom.univie.ac.at)
-to R for sending code to a running instance of R. This way any R
-snippet can be easily evaluated in that instance of R.
+    - RCom interface (http://rcom.univie.ac.at; Windows only)
+    - RServe (requires +ruby and the rserve-client rubygem)
+    - screeen/tmux via the screen plugin
 
-After installation, interaction with R via rcom is enabled for all
+After installation, interaction with R is enabled for all
 buffers with filetype r. For other filetypes, you can use the
 functions |rcom#EvaluateInBuffer()|.
 
@@ -13,18 +12,29 @@ functions |rcom#EvaluateInBuffer()|.
 Features:
 
     - Evaluate R code
-    - Omnicompletion for R
     - Maps for normal, visual, and insert mode
     - Keyword map (|K|)
     - Operator
 
+The following features are supported only with some methods:
+
+    - Omnicompletion for R
+    - Get return values from R
+
 
 Caveats:
 
-It is recommended to set |g:rcom#server| and |g:rcom#reuse| = 1.
+For the RCOM and rserve methods, it is recommended to set 
+|g:rcom#server|. Depending on your OS, your version of ruby & R & 
+rcom/rserve, this ftplugin may cause vim to hang or crash. When you run 
+the R code via a second instance of GVIM, you won't suffer from such 
+hickups. This also has the side effect that you can continue editing 
+while R evaluates the code.
 
-Setting |g:rcom#reuse| = 1 is more stable. Depending on your version of 
-ruby & R & rcom, g:rcom#reuse = 0 could make your gvim crash.
+For the RCOM method, it is recommended to set |g:rcom#reuse| = 1 and to 
+start an instance of RGui (Windows only) before initiating any 
+communication via RCOM. 
+
 
 
 Maps~
@@ -37,32 +47,18 @@ normal, insert, and visual mode. There is also an operator (see
 
 Normal usage~
 
-    1. Start an instance of R GUI and load the image you want.
-    2. Open an R source file in VIM.
-    3. Type <c-cr> to evaluate the current line/visual area in R.
-    4. Type [count]+ or +{motion} to evaluate some text in R. (You can 
-       type ++ to invoke |+|.)
+    0.  Optional steps:
+            a. Prepare a running instance of RGui if using the RCOM 
+               method.
+            b. RCOM and screen methods: The results get printed in the R 
+               window. You might want to arrange the windows in a way, 
+               so that you can see VIM, R console and R graphic device 
+               at the same time.
+    1.  Open an R source file in VIM.
+    2a. Type <c-cr> to evaluate the current line/visual area in R.
+    2b. Type [count]+ or +{motion} to evaluate some text in R. (You can 
+        type ++ to invoke |+|.)
 
-By default, the results get printed in the R GUI window. You might want 
-to arrange the windows in a way, so that you can see VIM, R console and 
-R graphic device at the same time.
-
-
-Two modes~
-
-#1 Run as headless StatConnectorSrv:
-    This is only useful when used from another library as you won't see 
-    any output. Any output from a print command is inserted in the 
-    result. If there is a .Rdata image in the same directory as the 
-    current buffer, it is loaded.
-
-#2 Re-use a running instance of R:
-    If there is a .Rhistory file in the same directory as the current
-    buffer, it is loaded. This is the default mode when enabling an R 
-    buffer via |rcom#EvaluateInBuffer()|.
-
-You can only connect to one instance of R at a time. If there are
-several instances of R running ... well, good luck then. :-)
 
 
 -----------------------------------------------------------------------
