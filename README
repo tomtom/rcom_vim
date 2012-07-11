@@ -2,7 +2,7 @@ The rcom ftplugin uses one of the following methods to evaluate R code:
 
     - RCom interface (http://rcom.univie.ac.at; Windows only)
     - RServe (requires +ruby and the rserve-client rubygem)
-    - screeen/tmux via the screen plugin
+    - screen/tmux via the screen vim plugin
 
 After installation, interaction with R is enabled for all
 buffers with filetype r. For other filetypes, you can use the
