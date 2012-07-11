@@ -2,40 +2,57 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2010-03-15.
-" @Revision:    0.1.118
-" GetLatestVimScripts: 0 0 :AutoInstall: rcom.vim
+" @Last Change: 2012-07-11.
+" @Revision:    130
+" GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-
-if !exists('g:rcom_map')
-    " The map for rcom-related maps in normal, insert, and visual mode.
-    " Set this to "", to prevent rcom from defining maps.
-    let g:rcom_map = "<c-cr>"   "{{{2
+if !exists('g:rcom_r_plugin_compatibility')
+    let g:rcom_r_plugin_compatibility = 0   "{{{2
 endif
 
-if !exists('g:rcom_mapp')
-    " The map for rcom-related maps that print the result.
-    " Set this to "", to prevent rcom from defining maps.
-    let g:rcom_mapp = "<c-s-cr>"   "{{{2
-endif
 
-if !exists('g:rcom_mapop')
-    " The rcom operator map.
-    " Set this to "", to prevent rcom from defining maps.
-    "
-    " This defines the following maps (where # represents the value of 
-    " g:rcom_mapop):
-    "
-    "     #{motion} ... Operator
-    "     #.        ... Evaluate the current line (normal mode)
-    "     [visual]# ... Evaluate the visual area
-    "     #p        ... Toggle printing for the above maps
-    "     #l        ... Open the log window
-    "     ##        ... Evaluate the |maparg| previously mapped to #
-    let g:rcom_mapop = "+"   "{{{2
+if g:rcom_r_plugin_compatibility
+
+    let g:rcom_map = "<plug>rcom_eval"
+    let g:rcom_mapp = "<plug>rcom_evalprint"
+    let g:rcom_mapop = "<plug>rcom_op"
+    exec 'nnoremap <buffer> <localleader>rp viw<plug>rcom_evalprint
+    nnoremap <buffer> <localleader>rt :call rcom#Keyword()<cr>
+    nnoremap <buffer> <localleader>bb <plug>rcom_op
+
+else
+
+    if !exists('g:rcom_map')
+        " The map for rcom-related maps in normal, insert, and visual mode.
+        " Set this to "", to prevent rcom from defining maps.
+        let g:rcom_map = "<c-cr>"   "{{{2
+    endif
+
+    if !exists('g:rcom_mapp')
+        " The map for rcom-related maps that print the result.
+        " Set this to "", to prevent rcom from defining maps.
+        let g:rcom_mapp = "<c-s-cr>"   "{{{2
+    endif
+
+    if !exists('g:rcom_mapop')
+        " The rcom operator map.
+        " Set this to "", to prevent rcom from defining maps.
+        "
+        " This defines the following maps (where # represents the value of 
+        " g:rcom_mapop):
+        "
+        "     #{motion} ... Operator
+        "     #.        ... Evaluate the current line (normal mode)
+        "     [visual]# ... Evaluate the visual area
+        "     #p        ... Toggle printing for the above maps
+        "     #l        ... Open the log window
+        "     ##        ... Evaluate the |maparg| previously mapped to #
+        let g:rcom_mapop = "+"   "{{{2
+    endif
+
 endif
 
 
