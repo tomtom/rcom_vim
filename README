@@ -1,8 +1,9 @@
 The rcom ftplugin uses one of the following methods to evaluate R code:
 
-    - RCom interface (http://rcom.univie.ac.at; Windows only)
+    - screen (default, also works under Windows with cygwin/mintty & Windows Rterm)
+    - screen or tmux via the screen vim plugin
     - RServe (requires +ruby and the rserve-client rubygem)
-    - screen/tmux via the screen vim plugin
+    - RCom interface (http://rcom.univie.ac.at; Windows only)
 
 After installation, interaction with R is enabled for all
 buffers with filetype r. For other filetypes, you can use the
@@ -34,7 +35,6 @@ while R evaluates the code.
 For the RCOM method, it is recommended to set |g:rcom#reuse| = 1 and to 
 start an instance of RGui (Windows only) before initiating any 
 communication via RCOM. 
-
 
 
 Maps~
