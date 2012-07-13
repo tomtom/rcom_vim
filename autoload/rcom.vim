@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-11.
-" @Revision:    593
+" @Last Change: 2012-07-13.
+" @Revision:    609
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -21,16 +21,14 @@ endf
 
 if !exists('g:rcom#method')
     " The following methods to connect to R are supported:
+    "     screen ... Use Gnu Screen or tmux
     "     rcom ... Use rcom from http://rcom.univie.ac.at/
     "              (requires vim's |ruby| interface; as of plugin 
     "              version 0.3 the rcom method is untested)
     "     rserve ... Use rserve
     "              (requires vim's |ruby| interface and the 
     "              rserve-client ruby gem to be installed)
-    "     screen ... Use Gnu Screen or tmux via Eric Van Dewoestine's 
-    "              screen plugin
-    "              (requires http://www.vim.org/scripts/script.php?script_id=2711)
-    let g:rcom#method = 'rcom'   "{{{2
+    let g:rcom#method = 'screen'   "{{{2
 endif
 if index(['rcom', 'rserve', 'screen'], g:rcom#method) == -1
     echoerr "RCom: g:rcom#method must be one of: rcom, rserve, screen'
@@ -233,6 +231,7 @@ endf
 " Omnicompletion for R.
 " See also 'omnifunc'.
 function! rcom#Complete(findstart, base) "{{{3
+    " TLogVAR a:findstart, a:base
     if a:findstart
         let line = getline('.')
         let start = col('.') - 1
@@ -242,12 +241,14 @@ function! rcom#Complete(findstart, base) "{{{3
         return start
     else
         let r_connection = rcom#Initialize(g:rcom#reuse)
+        " TLogVAR r_connection
         if r_connection.type == 2
             if exists('w:tskeleton_hypercomplete')
                 let completions = rcom#Evaluate(['paste(sapply(apropos("^'. s:Escape2(a:base, '^$.*\[]~"') .'"), function(t) {if (try(is.function(eval.parent(parse(text = t))), silent = TRUE) == TRUE) sprintf("%s(<+CURSOR+>)", t) else t}), collapse="\n")'], 'r')
             else
                 let completions = rcom#Evaluate(['paste(apropos("^'. s:Escape2(a:base, '^$.*\[]~"') .'"), collapse="\n")'], 'r')
             endif
+            " TLogVAR completions
             let clist = split(completions, '\n')
             " TLogVAR clist
             return clist
@@ -472,7 +473,7 @@ function! rcom#Initialize(...) "{{{3
     if !has_key(s:rcom, bn)
         let fn = 'rcom#'. g:rcom#method .'#Initialize'
         " TLogVAR fn
-        " try
+        try
             let r_connection = call(fn, a:000)
             let bn = bufnr('%')
             " TLogVAR bn, r_connection
@@ -482,13 +483,13 @@ function! rcom#Initialize(...) "{{{3
                     let s:rcom[bn] = r_connection
                 endif
             endif
-        " catch
-        "     if !exists('*'. fn)
-        "         echoerr "RCom: Unsupported method (see :help g:rcom#method):" g:rcom#method
-        "     else
-        "         echoerr "RCom: Error when loading" g:rcom#method
-        "     endif
-        " endtry
+        catch
+            if !exists('*'. fn)
+                echoerr "RCom: Unsupported method (see :help g:rcom#method):" g:rcom#method
+            else
+                echoerr "RCom: Error when loading" g:rcom#method
+            endif
+        endtry
     endif
     return s:rcom[bn]
 endf
@@ -573,7 +574,7 @@ function! rcom#EvaluateInBuffer(...) range "{{{3
         "     " echo " "
         "     echo printf("Evaluated %d lines", len)
         " endif
-        echo
+        echo " "
         redraw
     endif
     return rv
