@@ -494,6 +494,31 @@ function! rcom#Initialize(...) "{{{3
 endf
 
 
+let s:debugged = []
+
+function! rcom#Debug(fn) "{{{3
+    call rcom#Evaluate(printf('debug(%s)', a:fn))
+    call add(s:debugged, a:fn)
+endf
+
+
+function! rcom#Undebug(fn) "{{{3
+    let fn = a:fn
+    if !empty(fn) && exists('g:loaded_tlib')
+        let fn = tlib#input#List('s', 'Select function:', s:debugged)
+    endif
+    if !empty(fn)
+        let i = index(s:debugged, fn)
+        if i != -1
+            call remove(s:debugged, i)
+        else
+            echom "RCom: Not a debugged function?" fn
+        endif
+        call rcom#Evaluate(printf('undebug(%s)', fn))
+    endif
+endf
+
+
 " :display: rcom#Evaluate(rcode, ?mode='')
 " rcode can be a string or an array of strings.
 " mode can be one of

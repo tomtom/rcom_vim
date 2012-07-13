@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-11.
-" @Revision:    130
+" @Last Change: 2012-07-13.
+" @Revision:    143
 " GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -47,6 +47,7 @@ else
         "     #{motion} ... Operator
         "     #.        ... Evaluate the current line (normal mode)
         "     [visual]# ... Evaluate the visual area
+        "     #d        ... Debug a function (call |rcom#Undebug| to stop)
         "     #p        ... Toggle printing for the above maps
         "     #l        ... Open the log window
         "     ##        ... Evaluate the |maparg| previously mapped to #
@@ -112,9 +113,22 @@ if !empty(g:rcom_mapop)
     exec 'nnoremap <buffer> '. g:rcom_mapop .'. :call rcom#EvaluateInBuffer(getline(''.''), b:rcom_mode)<cr>'
     exec 'xnoremap <buffer> '. g:rcom_mapop .' :call rcom#EvaluateInBuffer(rcom#GetSelection("v"), b:rcom_mode)<cr>'
     exec 'nnoremap <buffer> '. g:rcom_mapop .'p :let b:rcom_mode = b:rcom_mode == "p" ? "" : "p" \| redraw \| echom "RCom: Printing turned ". (b:rcom_mode == "p" ? "on" : "off")<cr>'
+    exec 'nnoremap <buffer> '. g:rcom_mapop .'d :call rcom#Debug(expand("<cword>"))<cr>'
+    exec 'vnoremap <buffer> '. g:rcom_mapop .'d ""p:call rcom#Debug(@")<cr>'
     exec 'nnoremap <buffer> '. g:rcom_mapop .'l :call rcom#LogBuffer()<cr>'
     exec 'nnoremap <buffer> '. g:rcom_mapop .'t :call rcom#TranscriptBuffer()<cr>'
 endif
+
+
+" :display: RDebug [FUNCTION]
+" Buffer-local command.
+" Debug the function under cursor.
+command! -buffer -nargs=? RDebug    call rcom#Debug(empty(<q-args>) ? expand("<cword>") : <q-args>)
+
+" :display: RUndebug [FUNCTION]
+" Buffer-local command.
+" Undebug the function under cursor.
+command! -buffer -nargs=? RUndebug  call rcom#Undebug(empty(<q-args>) ? (exists('g:loaded_tlib') ? '' : expand("<cword>")) : <q-args>)
 
 
 " if !hasmapto(':call rcom#EvaluateInBuffer(', 'n')
