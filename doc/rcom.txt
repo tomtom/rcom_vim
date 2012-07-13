@@ -5,7 +5,7 @@ The rcom ftplugin uses one of the following methods to evaluate R code:
 
     - RCom interface (http://rcom.univie.ac.at; Windows only)
     - RServe (requires +ruby and the rserve-client rubygem)
-    - screeen/tmux via the screen plugin
+    - screen/tmux via the screen vim plugin
 
 After installation, interaction with R is enabled for all
 buffers with filetype r. For other filetypes, you can use the
@@ -37,7 +37,6 @@ while R evaluates the code.
 For the RCOM method, it is recommended to set |g:rcom#reuse| = 1 and to 
 start an instance of RGui (Windows only) before initiating any 
 communication via RCOM. 
-
 
 
 Maps~
@@ -141,6 +140,8 @@ Contents~
         :RComtranscript ................. |:RComtranscript|
         rcom#Transcribe ................. |rcom#Transcribe()|
         rcom#Initialize ................. |rcom#Initialize()|
+        rcom#Debug ...................... |rcom#Debug()|
+        rcom#Undebug .................... |rcom#Undebug()|
         rcom#Evaluate ................... |rcom#Evaluate()|
         rcom#EvaluateInBuffer ........... |rcom#EvaluateInBuffer()|
         g:rcom_r_plugin_compatibility ... |g:rcom_r_plugin_compatibility|
@@ -150,23 +151,23 @@ Contents~
         g:rcom_mapp ..................... |g:rcom_mapp|
         g:rcom_mapop .................... |g:rcom_mapop|
         n_K ............................. |rcom-map-n_K|
+        :RDebug ......................... |rcom-map-:RDebug|
+        :RUndebug ....................... |rcom-map-:RUndebug|
 
 
 ========================================================================
 autoload/rcom.vim~
 
                                                     *g:rcom#method*
-g:rcom#method                  (default: 'rcom')
+g:rcom#method                  (default: 'screen')
     The following methods to connect to R are supported:
+        screen ... Use Gnu Screen or tmux
         rcom ... Use rcom from http://rcom.univie.ac.at/
                  (requires vim's |ruby| interface; as of plugin 
                  version 0.3 the rcom method is untested)
         rserve ... Use rserve
                  (requires vim's |ruby| interface and the 
                  rserve-client ruby gem to be installed)
-        screen ... Use Gnu Screen or tmux via Eric Van Dewoestine's 
-                 screen plugin
-                 (requires http://www.vim.org/scripts/script.php?script_id=2711)
 
                                                     *g:rcom#help*
 g:rcom#help                    (default: 1)
@@ -279,6 +280,12 @@ rcom#Initialize(?reuse=g:rcom#reuse)
     Connect to the R interpreter for the current buffer.
     Usually not called by the user.
 
+                                                    *rcom#Debug()*
+rcom#Debug(fn)
+
+                                                    *rcom#Undebug()*
+rcom#Undebug(fn)
+
                                                     *rcom#Evaluate()*
 rcom#Evaluate(rcode, ?mode='')
     rcode can be a string or an array of strings.
@@ -331,6 +338,7 @@ g:rcom_mapop                   (default: "+")
         #{motion} ... Operator
         #.        ... Evaluate the current line (normal mode)
         [visual]# ... Evaluate the visual area
+        #d        ... Debug a function (call |rcom#Undebug| to stop)
         #p        ... Toggle printing for the above maps
         #l        ... Open the log window
         ##        ... Evaluate the |maparg| previously mapped to #
@@ -338,6 +346,16 @@ g:rcom_mapop                   (default: "+")
                                                     *rcom-map-n_K*
 n_K ... :call rcom#Keyword()<cr>
     See |rcom#Keyword()| and |K|.
+
+                                                    *rcom-map-:RDebug*
+RDebug [FUNCTION]
+    Buffer-local command.
+    Debug the function under cursor.
+
+                                                    *rcom-map-:RUndebug*
+RUndebug [FUNCTION]
+    Buffer-local command.
+    Undebug the function under cursor.
 
 
 
