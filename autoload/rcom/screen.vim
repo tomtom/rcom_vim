@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
-" @Last Change: 2012-07-13.
-" @Revision:    206
+" @Last Change: 2012-07-15.
+" @Revision:    223
 
 
 if !exists('g:rcom#screen#method')
@@ -25,13 +25,13 @@ if !exists('g:rcom#screen#method')
 endif
 
 if !exists('g:rcom#screen#rterm')
-    let g:rcom#screen#rterm = 'Rterm'   "{{{2
+    let g:rcom#screen#rterm = (has('win32') || has('win64')) ? 'Rterm --ess' : 'R'   "{{{2
 endif
 
 
 if !exists('g:rcom#screen#rterm_args')
     " Command-line arguments passed to Rterm (see |g:rcom#screen#rterm|).
-    let g:rcom#screen#rterm_args = '--ess'   "{{{2
+    let g:rcom#screen#rterm_args = ''   "{{{2
 endif
 
 
@@ -122,9 +122,25 @@ elseif g:rcom#screen#method == 'rcom'
 
 
     if !exists('g:rcom#screen#rcom_shell')
-        " The shell used to run |g:rcom#screen#rcom_cmd|. Leave empty to 
-        " use 'shell'.
-        let g:rcom#screen#rcom_shell = has('gui') && (has('win32') || has('win64')) ? ' start "" mintty' : ''   "{{{2
+        " The shell and terminal used to run |g:rcom#screen#rcom_cmd|.
+        " If GUI is running, also start a terminal.
+        " Default values with GUI running:
+        "     Windows :: mintty
+        "     Linux :: gnome-terminal
+        let g:rcom#screen#rcom_shell =  ''   "{{{2
+        if has('gui')
+            if (has('win32') || has('win64'))
+                let g:rcom#screen#rcom_shell = ' start "" mintty'
+            elseif executable('gnome-terminal')
+                let g:rcom#screen#rcom_shell = 'gnome-terminal -x'
+            endif
+        endif
+    endif
+
+
+    if !exists('g:rcom#screen#rcom_wait')
+        " How long to wait after starting the terminal.
+        let g:rcom#screen#rcom_wait = '500m'   "{{{2
     endif
 
 
@@ -159,9 +175,10 @@ elseif g:rcom#screen#method == 'rcom'
             if s:reuse
                 call add(args, '-d -R')
             endif
-            " TLogVAR args
-            exec 'silent! !' join(args) '&'
-            sleep 1
+            let cmd = join(args)
+            " TLogVAR cmd
+            exec 'silent! !' cmd '&'
+            exec 'sleep' g:rcom#screen#rcom_wait
             call self.Evaluate(s:RTerm(), '')
         endif
         let s:connected += 1
@@ -220,6 +237,7 @@ elseif g:rcom#screen#method == 'rcom'
 
     function! s:Screen(cmd) "{{{3
         let cmd = join([g:rcom#screen#rcom_cmd, g:rcom#screen#rcom_args, a:cmd])
+        " TLogVAR cmd
         let rv = system(cmd)
         return rv
     endf

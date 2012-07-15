@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-13.
-" @Revision:    609
+" @Last Change: 2012-07-15.
+" @Revision:    621
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -108,6 +108,12 @@ endif
 if !exists('g:rcom#server_wait')
     " Seconds to wait after starting |rcom#server|.
     let g:rcom#server_wait = 10   "{{{2
+endif
+
+
+if !exists('g:rcom#highlight_debug')
+    " Highlight group for debugged functions.
+    let g:rcom#highlight_debug = 'SpellRare'   "{{{2
 endif
 
 
@@ -498,8 +504,27 @@ endf
 let s:debugged = []
 
 function! rcom#Debug(fn) "{{{3
+    " TLogVAR fn
     call rcom#Evaluate(printf('debug(%s)', a:fn))
     call add(s:debugged, a:fn)
+    call s:Highlight()
+endf
+
+
+let s:hl_init = 0
+
+function! s:Highlight() "{{{3
+    if s:hl_init
+        syntax clear RComDebug
+    else
+        exec 'hi def link RComDebug' g:rcom#highlight_debug
+        let s:hl_init = 1
+    endif
+    if !empty(s:debugged)
+        let debugged = map(copy(s:debugged), 'escape(v:val, ''\'')')
+        " TLogVAR debugged
+        exec 'syntax match RComDebug /\V\<\('. join(debugged, '\|') .'\)\>/'
+    endif
 endf
 
 
@@ -532,6 +557,7 @@ function! rcom#Evaluate(rcode, ...) "{{{3
     else
         let rcode = a:rcode
     endif
+    " TLogVAR a:rcode
     let r_connection = rcom#Initialize(g:rcom#reuse)
     " TLogVAR r_connection
     let value = r_connection.Evaluate(rcode, mode)
