@@ -514,12 +514,9 @@ endf
 
 let s:debugged = []
 
+" Toggle the debug status of a function.
 function! rcom#Debug(fn) "{{{3
     " TLogVAR fn
-    call rcom#Evaluate(printf('debug(%s)', a:fn))
-    call add(s:debugged, a:fn)
-    call s:Highlight()
-endf
     if index(s:debugged, a:fn) == -1
         call rcom#Evaluate(printf('debug(%s)', a:fn))
         call add(s:debugged, a:fn)
