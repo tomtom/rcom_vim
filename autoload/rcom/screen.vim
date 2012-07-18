@@ -51,7 +51,7 @@ endif
 
 
 let s:connected = 0
-let s:reuse = g:rcom#reuse
+let s:reuse = g:rcom#reuse || !has("gui_running")
 
 if g:rcom#screen#method == 'screen.vim'
 
