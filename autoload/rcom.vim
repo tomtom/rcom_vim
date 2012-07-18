@@ -603,7 +603,7 @@ function! rcom#EvaluateInBuffer(...) range "{{{3
         call s:Warning("Evaluating R code ...")
         let logn = s:LogN()
         let rv = call('rcom#Evaluate', a:000)
-        if !g:rcom#reuse || s:IsRemoteServer()
+        if bufwinnr('__RCom_Transcript__') != -1 || s:IsRemoteServer()
             call rcom#Transcribe(a:1, rv)
         endif
         " if logn == s:LogN()
