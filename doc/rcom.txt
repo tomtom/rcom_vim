@@ -122,11 +122,13 @@ Contents~
         g:rcom#options .................. |g:rcom#options|
         g:rcom#options_reuse_0 .......... |g:rcom#options_reuse_0|
         g:rcom#options_reuse_1 .......... |g:rcom#options_reuse_1|
+        g:rcom#r_object_browser ......... |g:rcom#r_object_browser|
         g:rcom#transcript_cmd ........... |g:rcom#transcript_cmd|
         g:rcom#log_cmd .................. |g:rcom#log_cmd|
         g:rcom#log_trim ................. |g:rcom#log_trim|
         g:rcom#server ................... |g:rcom#server|
         g:rcom#server_wait .............. |g:rcom#server_wait|
+        g:rcom#highlight_debug .......... |g:rcom#highlight_debug|
         rcom#Log ........................ |rcom#Log()|
         rcom#Quit ....................... |rcom#Quit()|
         rcom#Complete ................... |rcom#Complete()|
@@ -152,6 +154,7 @@ Contents~
         g:rcom_mapp ..................... |g:rcom_mapp|
         g:rcom_mapop .................... |g:rcom_mapop|
         n_K ............................. |rcom-map-n_K|
+        n_<LocalLeader>K ................ |rcom-map-n_<LocalLeader>K|
         :RDebug ......................... |rcom-map-:RDebug|
         :RUndebug ....................... |rcom-map-:RUndebug|
 
@@ -162,13 +165,13 @@ autoload/rcom.vim~
                                                     *g:rcom#method*
 g:rcom#method                  (default: 'screen')
     The following methods to connect to R are supported:
-        screen ... Use Gnu Screen or tmux
-        rcom ... Use rcom from http://rcom.univie.ac.at/
-                 (requires vim's |ruby| interface; as of plugin 
-                 version 0.3 the rcom method is untested)
+        screen ... Use Gnu Screen or tmux (see |g:rcom#screen#method|)
         rserve ... Use rserve
                  (requires vim's |ruby| interface and the 
                  rserve-client ruby gem to be installed)
+        rcom ... Use rcom from http://rcom.univie.ac.at/
+                 (requires vim's |ruby| interface; as of plugin 
+                 version 0.3 the rcom method is untested)
 
                                                     *g:rcom#help*
 g:rcom#help                    (default: 1)
@@ -180,7 +183,7 @@ g:rcom#help                    (default: 1)
             Internet access)
 
                                                     *g:rcom#reuse*
-g:rcom#reuse                   (default: 1)
+g:rcom#reuse                   (default: g:rcom#method == 'rcom')
     How to interact with R.
        0 ... Start a headless instance of R and transcribe the 
              interaction in VIM
@@ -192,11 +195,15 @@ g:rcom#options                 (default: '')
 
                                                     *g:rcom#options_reuse_0*
 g:rcom#options_reuse_0         (default: '')
-    Inital set of commands to send to R if |g:rcom#reuse| is 0.
+    Inital set of R options to send to R if |g:rcom#reuse| is 0.
 
                                                     *g:rcom#options_reuse_1*
 g:rcom#options_reuse_1         (default: '')
-    Inital set of commands to send to R if |g:rcom#reuse| is 1.
+    Inital set of R options to send to R if |g:rcom#reuse| is 1.
+
+                                                    *g:rcom#r_object_browser*
+g:rcom#r_object_browser        (default: 'str')
+    Default object browser.
 
                                                     *g:rcom#transcript_cmd*
 g:rcom#transcript_cmd          (default: s:IsRemoteServer() ? 'edit' : 'vert split')
@@ -227,6 +234,10 @@ g:rcom#server                  (default: "")
 g:rcom#server_wait             (default: 10)
     Seconds to wait after starting |rcom#server|.
 
+                                                    *g:rcom#highlight_debug*
+g:rcom#highlight_debug         (default: 'SpellRare')
+    Highlight group for debugged functions.
+
                                                     *rcom#Log()*
 rcom#Log(text)
 
@@ -246,7 +257,7 @@ rcom#Keyword(...)
 
                                                     *rcom#Info()*
 rcom#Info(...)
-    Display help on the word under the cursor.
+    Inspect the word under the cursor.
 
                                                     *rcom#GetSelection()*
 rcom#GetSelection(mode, ?mbeg="'<", ?mend="'>", ?opmode='selection')
@@ -283,9 +294,11 @@ rcom#Initialize(?reuse=g:rcom#reuse)
 
                                                     *rcom#Debug()*
 rcom#Debug(fn)
+    Toggle the debug status of a function.
 
                                                     *rcom#Undebug()*
 rcom#Undebug(fn)
+    Undebug a debugged function.
 
                                                     *rcom#Evaluate()*
 rcom#Evaluate(rcode, ?mode='')
@@ -339,14 +352,18 @@ g:rcom_mapop                   (default: "+")
         #{motion} ... Operator
         #.        ... Evaluate the current line (normal mode)
         [visual]# ... Evaluate the visual area
-        #d        ... Debug a function (call |rcom#Undebug| to stop)
         #p        ... Toggle printing for the above maps
+        #d        ... Toggle a function's debug status
         #l        ... Open the log window
         ##        ... Evaluate the |maparg| previously mapped to #
 
                                                     *rcom-map-n_K*
 n_K ... :call rcom#Keyword()<cr>
     See |rcom#Keyword()| and |K|.
+
+                                                    *rcom-map-n_<LocalLeader>K*
+n_<LocalLeader>K ... :call rcom#Info()<cr>
+    Inspect an R object -- see |rcom#Info()|.
 
                                                     *rcom-map-:RDebug*
 RDebug [FUNCTION]

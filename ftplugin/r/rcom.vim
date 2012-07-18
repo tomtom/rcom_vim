@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-13.
-" @Revision:    143
+" @Last Change: 2012-07-16.
+" @Revision:    149
 " GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -47,8 +47,8 @@ else
         "     #{motion} ... Operator
         "     #.        ... Evaluate the current line (normal mode)
         "     [visual]# ... Evaluate the visual area
-        "     #d        ... Debug a function (call |rcom#Undebug| to stop)
         "     #p        ... Toggle printing for the above maps
+        "     #d        ... Toggle a function's debug status
         "     #l        ... Open the log window
         "     ##        ... Evaluate the |maparg| previously mapped to #
         let g:rcom_mapop = "+"   "{{{2
@@ -72,7 +72,9 @@ endif
 
 " See |rcom#Keyword()| and |K|.
 nnoremap <buffer> K :call rcom#Keyword()<cr>
-" nnoremap <buffer> <LocalLeader>K :call rcom#Info()<cr>
+
+" Inspect an R object -- see |rcom#Info()|.
+nnoremap <buffer> <LocalLeader>K :call rcom#Info()<cr>
 
 
 " if !hasmapto(':call rcom#EvaluateInBuffer(', 'n')

@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-15.
-" @Revision:    621
+" @Last Change: 2012-07-18.
+" @Revision:    670
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -21,13 +21,13 @@ endf
 
 if !exists('g:rcom#method')
     " The following methods to connect to R are supported:
-    "     screen ... Use Gnu Screen or tmux
-    "     rcom ... Use rcom from http://rcom.univie.ac.at/
-    "              (requires vim's |ruby| interface; as of plugin 
-    "              version 0.3 the rcom method is untested)
+    "     screen ... Use Gnu Screen or tmux (see |g:rcom#screen#method|)
     "     rserve ... Use rserve
     "              (requires vim's |ruby| interface and the 
     "              rserve-client ruby gem to be installed)
+    "     rcom ... Use rcom from http://rcom.univie.ac.at/
+    "              (requires vim's |ruby| interface; as of plugin 
+    "              version 0.3 the rcom method is untested)
     let g:rcom#method = 'screen'   "{{{2
 endif
 if index(['rcom', 'rserve', 'screen'], g:rcom#method) == -1
@@ -62,13 +62,13 @@ endif
 
 
 if !exists('g:rcom#options_reuse_0')
-    " Inital set of commands to send to R if |g:rcom#reuse| is 0.
+    " Inital set of R options to send to R if |g:rcom#reuse| is 0.
     let g:rcom#options_reuse_0 = ''   "{{{2
 endif
 
 
 if !exists('g:rcom#options_reuse_1')
-    " Inital set of commands to send to R if |g:rcom#reuse| is 1.
+    " Inital set of R options to send to R if |g:rcom#reuse| is 1.
     let g:rcom#options_reuse_1 = ''   "{{{2
 endif
 
@@ -186,8 +186,8 @@ endf
 
 
 function! rcom#Log(text) "{{{3
-    " TLogVAR a:text
     if a:text !~ '^RCom: \d\+ messages in the log$'
+        " TLogVAR a:text
         let s:log[s:LogID()] = a:text
         if bufwinnr('__RCom_Log__') != -1
             call rcom#LogBuffer()
@@ -385,6 +385,7 @@ function! rcom#LogBuffer() "{{{3
         call remote_send('RCOM', ':call rcom#LogBuffer()<cr>')
     else
         let winnr = winnr()
+        " TLogVAR winnr
         try
             call s:ScratchBuffer('log', '__RCom_Log__')
             if g:rcom#log_trim
