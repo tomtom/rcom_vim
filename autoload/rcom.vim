@@ -275,16 +275,15 @@ endf
 function! rcom#Keyword(...) "{{{3
     let word = a:0 >= 1 && !empty(a:1) ? a:1 : expand("<cword>")
     " TLogVAR word
-    call rcom#EvaluateInBuffer(printf('if (mode(%s) == "function") {print(help(%s))} else {str(%s)}', word, word, word))
+    call rcom#EvaluateInBuffer(printf('rcom.keyword(%s)', word))
 endf
 
 
-" Display help on the word under the cursor.
+" Inspect the word under the cursor.
 function! rcom#Info(...) "{{{3
     let word = a:0 >= 1 && !empty(a:1) ? a:1 : expand("<cword>")
     " TLogVAR word
-    call rcom#EvaluateInBuffer(printf('str(%s)', word))
-    call rcom#EvaluateInBuffer(printf('if (class(%s) == "data.frame") print(head(%s))', word, word))
+    call rcom#EvaluateInBuffer(printf('rcom.info(%s)', string(word)))
 endf
 
 
@@ -476,6 +475,8 @@ function! rcom#Transcribe(input, output) "{{{3
 endf
 
 
+let s:sfile = expand('<sfile>:p:h')
+
 " :display: rcom#Initialize(?reuse=g:rcom#reuse)
 " Connect to the R interpreter for the current buffer.
 " Usually not called by the user.
@@ -493,6 +494,10 @@ function! rcom#Initialize(...) "{{{3
                 if r_connection.Connect(g:rcom#reuse)
                     exec 'autocmd RCom BufUnload <buffer> call rcom#Quit('. bn .')'
                     let s:rcom[bn] = r_connection
+                    let r_lib = substitute(s:sfile, '\\', '/', 'g') .'/rcom/rcom_vim.R'
+                    " TLogVAR r_lib
+                    let rcode = printf('source(%s)', string(r_lib))
+                    call r_connection.Evaluate(rcode, '')
                 endif
             endif
         catch
