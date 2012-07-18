@@ -152,7 +152,7 @@ elseif g:rcom#screen#method == 'rcom'
 
     if !exists('g:rcom#screen#rcom_sep')
         " Number of empty lines to separate commands.
-        let g:rcom#screen#rcom_sep = 5   "{{{2
+        let g:rcom#screen#rcom_sep = 0   "{{{2
     endif
 
 
