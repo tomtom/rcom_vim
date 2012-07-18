@@ -347,7 +347,7 @@ function! rcom#Operator(type, ...) range "{{{3
 endf
 
 
-function! s:Scratch() "{{{3
+function! s:Scratch(type) "{{{3
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
@@ -357,7 +357,7 @@ function! s:Scratch() "{{{3
     setlocal modifiable
     setlocal nospell
     setf r
-    call setline(1, '# R Log Buffer')
+    call setline(1, printf('# RCom_vim %s', a:type))
 endf
 
 
@@ -370,7 +370,7 @@ function! s:ScratchBuffer(type, name) "{{{3
     else
         exec g:rcom#{a:type}_cmd .' '. a:name
         if bufnr == -1
-            call s:Scratch()
+            call s:Scratch(a:type)
             return 1
         else
             return 0
