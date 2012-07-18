@@ -520,11 +520,40 @@ function! rcom#Debug(fn) "{{{3
     call add(s:debugged, a:fn)
     call s:Highlight()
 endf
+    if index(s:debugged, a:fn) == -1
+        call rcom#Evaluate(printf('debug(%s)', a:fn))
+        call add(s:debugged, a:fn)
+        echom "RCom: Debug:" a:fn
+        call s:HighlightDebug()
+    else
+        call rcom#Undebug(a:fn)
+    endif
+endf
+
+
+" Undebug a debugged function.
+function! rcom#Undebug(fn) "{{{3
+    let fn = a:fn
+    if empty(fn) && exists('g:loaded_tlib')
+        let fn = tlib#input#List('s', 'Select function:', s:debugged)
+    endif
+    if !empty(fn)
+        let i = index(s:debugged, fn)
+        if i != -1
+            call remove(s:debugged, i)
+            echom "RCom: Undebug:" a:fn
+        else
+            echom "RCom: Not a debugged function?" fn
+        endif
+        call rcom#Evaluate(printf('undebug(%s)', fn))
+        call s:HighlightDebug()
+    endif
+endf
 
 
 let s:hl_init = 0
 
-function! s:Highlight() "{{{3
+function! s:HighlightDebug() "{{{3
     if s:hl_init
         syntax clear RComDebug
     else
@@ -535,23 +564,6 @@ function! s:Highlight() "{{{3
         let debugged = map(copy(s:debugged), 'escape(v:val, ''\'')')
         " TLogVAR debugged
         exec 'syntax match RComDebug /\V\<\('. join(debugged, '\|') .'\)\>/'
-    endif
-endf
-
-
-function! rcom#Undebug(fn) "{{{3
-    let fn = a:fn
-    if !empty(fn) && exists('g:loaded_tlib')
-        let fn = tlib#input#List('s', 'Select function:', s:debugged)
-    endif
-    if !empty(fn)
-        let i = index(s:debugged, fn)
-        if i != -1
-            call remove(s:debugged, i)
-        else
-            echom "RCom: Not a debugged function?" fn
-        endif
-        call rcom#Evaluate(printf('undebug(%s)', fn))
     endif
 endf
 
