@@ -51,7 +51,7 @@ if !exists('g:rcom#reuse')
     "    0 ... Start a headless instance of R and transcribe the 
     "          interaction in VIM
     "    1 ... Re-use a running instance of R GUI (default)
-    let g:rcom#reuse = 1   "{{{2
+    let g:rcom#reuse = g:rcom#method == 'rcom'   "{{{2
 endif
 
 
