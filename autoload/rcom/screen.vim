@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
-" @Last Change: 2012-07-15.
-" @Revision:    223
+" @Last Change: 2012-07-18.
+" @Revision:    326
 
 
 if !exists('g:rcom#screen#method')
@@ -124,11 +124,12 @@ elseif g:rcom#screen#method == 'rcom'
     if !exists('g:rcom#screen#rcom_shell')
         " The shell and terminal used to run |g:rcom#screen#rcom_cmd|.
         " If GUI is running, also start a terminal.
+        "
         " Default values with GUI running:
         "     Windows :: mintty
         "     Linux :: gnome-terminal
         let g:rcom#screen#rcom_shell =  ''   "{{{2
-        if has('gui')
+        if has('gui_running')
             if (has('win32') || has('win64'))
                 let g:rcom#screen#rcom_shell = ' start "" mintty'
             elseif executable('gnome-terminal')
@@ -169,16 +170,17 @@ elseif g:rcom#screen#method == 'rcom'
     function! s:prototype.Connect(reuse) dict "{{{3
         if s:connected == 0
             let s:reuse = a:reuse
-            let args = [g:rcom#screen#rcom_shell,
-                        \ g:rcom#screen#rcom_cmd, g:rcom#screen#rcom_args, '-t rcom'
-                        \ ]
-            if s:reuse
-                call add(args, '-d -R')
-            endif
-            let cmd = join(args)
+            let cmd = s:ScreenCmd(1, '')
             " TLogVAR cmd
-            exec 'silent! !' cmd '&'
-            exec 'sleep' g:rcom#screen#rcom_wait
+            if !empty(cmd)
+                if has("gui_running")
+                    exec 'silent! !'. cmd .'&'
+                    exec 'sleep' g:rcom#screen#rcom_wait
+                else
+                    exec 'silent! !' cmd
+                    redraw!
+                endif
+            endif
             call self.Evaluate(s:RTerm(), '')
         endif
         let s:connected += 1
@@ -216,7 +218,7 @@ elseif g:rcom#screen#method == 'rcom'
         " TLogVAR rcode
         call writefile(rcode, s:tempfile)
         let ftime = getftime(s:tempfile)
-        let cmd = ' -p rcom -d -r -X eval '
+        let cmd = '-X eval '
                     \ . (g:rcom#screen#rcom_clear ? ' "clear" ' : '')
                     \ . printf(' "readbuf ''%s''" ', s:tempfile)
                     \ . ' "at rcom paste ."'
@@ -235,10 +237,68 @@ elseif g:rcom#screen#method == 'rcom'
     endf
 
 
+    function! s:ScreenCmd(initial, args) "{{{3
+        " TLogVAR a:initial, a:args
+        let eval = '-X eval'
+        if a:initial
+            if has("gui_running") || !empty(g:rcom#screen#rcom_shell)
+                let cmd = [
+                            \ g:rcom#screen#rcom_shell,
+                            \ g:rcom#screen#rcom_cmd,
+                            \ s:ScreenSession(),
+                            \ '-t rcom'
+                            \ ]
+                if !s:reuse
+                    call add(cmd, '-d -R')
+                endif
+            elseif $TERM =~ '^screen'
+                let cmd = [g:rcom#screen#rcom_cmd,
+                            \ s:ScreenSession(),
+                            \ eval,
+                            \ '"title vim"',
+                            \ '"screen -t rcom" split focus "select rcom"',
+                            \ 'focus "select vim"'
+                            \ ]
+            else
+                throw 'RCom/screen: You have to run vim within screen or set g:rcom#screen#rcom_shell'
+            endif
+        else
+            let cmd = [
+                        \ g:rcom#screen#rcom_cmd,
+                        \ s:ScreenSession(),
+                        \ ]
+        endif
+        if !empty(a:args)
+            let eval_arg = a:args =~ '\V\^'. eval .'\>'
+            " TLogVAR eval_arg, eval, a:args
+            if a:args[0:0] == '-'
+                call add(cmd, a:args)
+            else
+                call add(cmd, eval)
+                call add(cmd, '"at rcom '. escape(a:args, '''"\') .'"')
+            endif
+        endif
+        let cmdline = join(cmd)
+        " TLogVAR cmdline
+        return cmdline
+    endf
+
+
+    function! s:ScreenSession() "{{{3
+        return s:reuse ? '' : ('-S '. g:rcom#screen#rcom_session)
+    endf
+
+
     function! s:Screen(cmd) "{{{3
-        let cmd = join([g:rcom#screen#rcom_cmd, g:rcom#screen#rcom_args, a:cmd])
+        let cmd = s:ScreenCmd(0, a:cmd)
         " TLogVAR cmd
-        let rv = system(cmd)
+        if has("win32unix")
+            exec 'silent! !'. cmd
+            let rv = ''
+        else
+            let rv = system(cmd)
+        endif
+        " TLogVAR rv
         return rv
     endf
 
@@ -261,7 +321,9 @@ function! s:RTerm() "{{{3
         let save = filereadable('.Rdata')
     endif
     call add(args, save ? '--save' : '--no-save')
-    call add(args, g:rcom#screen#rterm_args)
+    if !empty(g:rcom#screen#rterm_args)
+        call add(args, g:rcom#screen#rterm_args)
+    endif
     return join(args)
 endf
 
@@ -285,6 +347,7 @@ function! s:RCode(rcode, mode) "{{{3
     if a:mode == 'p'
         call add(rcode, 'print(.Last.value)')
     endif
+    " TLogVAR rcode
     return rcode
 endf
 
