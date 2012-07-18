@@ -25,7 +25,7 @@ if !exists('g:rcom#screen#method')
 endif
 
 if !exists('g:rcom#screen#rterm')
-    let g:rcom#screen#rterm = (has('win32') || has('win64')) ? 'Rterm --ess' : 'R'   "{{{2
+    let g:rcom#screen#rterm = executable('Rterm') ? 'Rterm --ess' : 'R'   "{{{2
 endif
 
 
