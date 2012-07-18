@@ -73,6 +73,12 @@ if !exists('g:rcom#options_reuse_1')
 endif
 
 
+if !exists('g:rcom#r_object_browser')
+    " Default object browser.
+    let g:rcom#r_object_browser = 'str'   "{{{2
+endif
+
+
 if !exists('g:rcom#transcript_cmd')
     " Command used to display the transcript buffers.
     let g:rcom#transcript_cmd = s:IsRemoteServer() ? 'edit' : 'vert split'   "{{{2
