@@ -116,8 +116,8 @@ elseif g:rcom#screen#method == 'rcom'
     endif
 
 
-    if !exists('g:rcom#screen#rcom_args')
-        let g:rcom#screen#rcom_args = '-S vimrcom'   "{{{2
+    if !exists('g:rcom#screen#rcom_session')
+        let g:rcom#screen#rcom_session = 'vimrcom'   "{{{2
     endif
 
 
