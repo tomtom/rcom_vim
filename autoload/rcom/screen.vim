@@ -190,6 +190,7 @@ elseif g:rcom#screen#method == 'rcom'
 
 
     function! s:prototype.Connect(reuse) dict "{{{3
+        " TLogVAR a:reuse
         if s:connected == 0
             let s:reuse = a:reuse
             let cmd = s:ScreenCmd(1, '')
@@ -197,7 +198,9 @@ elseif g:rcom#screen#method == 'rcom'
             if !empty(cmd)
                 exec 'silent! !'. cmd
                 if has("gui_running")
-                    exec 'sleep' g:rcom#screen#rcom_init_wait
+                    if !empty(g:rcom#screen#rcom_shell)
+                        exec 'sleep' g:rcom#screen#rcom_init_wait
+                    endif
                 else
                     redraw!
                 endif
@@ -249,10 +252,12 @@ elseif g:rcom#screen#method == 'rcom'
         call writefile(rcode, s:tempfile)
         let ftime = getftime(s:tempfile)
         let cmd = '-X eval '
+                    \ . ' "msgwait 0"'
                     \ . (g:rcom#screen#rcom_clear ? ' "at rcom clear"' : '')
                     \ . printf(' "bufferfile ''%s''"', s:tempfile)
                     \ . ' readbuf'
                     \ . ' "at rcom paste ."'
+                    " \ . ' "at rcom redisplay"'
         if a:mode != 'r'
             let cmd .= ' "register a rcom"'
                         \ . ' "paste a ."'
@@ -262,8 +267,8 @@ elseif g:rcom#screen#method == 'rcom'
         call s:Screen(cmd)
         for i in range(g:rcom#screen#rcom_timeout * 5)
             sleep 200m
+            " echom "DBG Evaluate" filereadable(s:tempfile) ftime getftime(s:tempfile)
             if filereadable(s:tempfile) && ftime != getftime(s:tempfile)
-                " TLogVAR rv
                 if a:mode == 'r'
                     let rv = join(readfile(s:tempfile), "\n")
                     break
