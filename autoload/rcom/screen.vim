@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
-" @Last Change: 2012-07-18.
-" @Revision:    326
+" @Last Change: 2012-07-19.
+" @Revision:    385
 
 
 if !exists('g:rcom#screen#method')
@@ -154,8 +154,14 @@ elseif g:rcom#screen#method == 'rcom'
     endif
 
 
-    if !exists('g:rcom#screen#rcom_wait')
+    if !exists('g:rcom#screen#rcom_init_wait')
         " How long to wait after starting the terminal.
+        let g:rcom#screen#rcom_init_wait = 1   "{{{2
+    endif
+
+
+    if !exists('g:rcom#screen#rcom_wait')
+        " How long to wait after executing a command.
         let g:rcom#screen#rcom_wait = '500m'   "{{{2
     endif
 
@@ -188,11 +194,10 @@ elseif g:rcom#screen#method == 'rcom'
             let cmd = s:ScreenCmd(1, '')
             " TLogVAR cmd
             if !empty(cmd)
+                exec 'silent! !'. cmd
                 if has("gui_running")
-                    exec 'silent! !'. cmd .'&'
-                    exec 'sleep' g:rcom#screen#rcom_wait
+                    exec 'sleep' g:rcom#screen#rcom_init_wait
                 else
-                    exec 'silent! !' cmd
                     redraw!
                 endif
             endif
@@ -240,20 +245,29 @@ elseif g:rcom#screen#method == 'rcom'
         call writefile(rcode, s:tempfile)
         let ftime = getftime(s:tempfile)
         let cmd = '-X eval '
-                    \ . (g:rcom#screen#rcom_clear ? ' "clear" ' : '')
-                    \ . printf(' "readbuf ''%s''" ', s:tempfile)
+                    \ . (g:rcom#screen#rcom_clear ? ' "at rcom clear"' : '')
+                    \ . printf(' "bufferfile ''%s''"', s:tempfile)
+                    \ . ' readbuf'
                     \ . ' "at rcom paste ."'
+        if a:mode != 'r'
+            let cmd .= ' "register a rcom"'
+                        \ . ' "paste a ."'
+                        \ . ' writebuf'
+        endif
         " TLogVAR cmd
         call s:Screen(cmd)
-        if a:mode == 'r'
-            for i in range(g:rcom#screen#rcom_timeout * 5)
-                sleep 200m
-                if filereadable(s:tempfile) && ftime != getftime(s:tempfile)
+        for i in range(g:rcom#screen#rcom_timeout * 5)
+            sleep 200m
+            if filereadable(s:tempfile) && ftime != getftime(s:tempfile)
+                " TLogVAR rv
+                if a:mode == 'r'
                     let rv = join(readfile(s:tempfile), "\n")
                     break
+                else
+                    break
                 endif
-            endfor
-        endif
+            endif
+        endfor
         return rv
     endf
 
@@ -277,7 +291,7 @@ elseif g:rcom#screen#method == 'rcom'
                             \ s:ScreenSession(),
                             \ eval,
                             \ '"title vim"',
-                            \ '"screen -t rcom" split focus "select rcom"',
+                            \ '"screen -t rcom" "at rcom split" focus "select rcom"',
                             \ 'focus "select vim"'
                             \ ]
             else
@@ -319,6 +333,7 @@ elseif g:rcom#screen#method == 'rcom'
         else
             let rv = system(cmd)
         endif
+        " exec 'sleep' g:rcom#screen#rcom_wait
         " TLogVAR rv
         return rv
     endf
