@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-06-21.
-" @Last Change: 2012-07-11.
-" @Revision:    0.0.99
+" @Last Change: 2012-07-19.
+" @Revision:    0.0.110
 
 
 let s:init = 0
@@ -65,21 +65,7 @@ if !s:init
             # debug "initialize r_options_reuse=#{r_options_reuse"
             r_send(%{options(#{r_options_reuse})}) if !r_options_reuse.empty?
             # r_send(%{options(error=function(e) {cat(e$message)})})
-            d = VIM::evaluate(%{expand("%:p:h")})
-            d.gsub!(/\\/, '/')
-            # debug "initialize d=#{d}"
-            r_send(%{setwd("#{d}")})
-            @rdata = File.join(d, '.Rdata')
-            # debug "initialize rdata=#{@rdata}"
-            if @reuse == 0 and File.exist?(@rdata)
-                r_send(%{sys.load.image("#{@rdata}", TRUE)})
-            end
-            @rhist = File.join(d, '.Rhistory')
-            if @features.include?('history') and @reuse != 0 and File.exist?(@rhist)
-                r_send(%{loadhistory("#{@rhist}")})
-            else
-                @rhist = nil
-            end
+        end
 
         def rcom_features
             features = []
@@ -203,12 +189,7 @@ if !s:init
         def quit(just_the_server = false)
             unless just_the_server
                 begin
-                    if @rhist
-                        r_send(%{try(savehistory("#{@rhist}"))})
-                    end
-                    if !@reuse
-                        r_send(%{q()})
-                    end
+                    r_send(%{rcom.quit()})
                 rescue
                 end
             end
@@ -234,6 +215,11 @@ CODE
         ruby VIM::command(%{let rv = #{RCom.disconnect}})
         return rv
     endf
+
+    function! s:prototype.Options() dict "{{{3
+        let options = {'features': []}
+        ruby VIM::command(%{let options.features = #{RCom.interpreter.rcom_features}})
+        return options
     endf
 
     function! s:prototype.Evaluate(rcode, mode) dict "{{{3

@@ -53,16 +53,29 @@ endif
 let s:connected = 0
 let s:reuse = g:rcom#reuse || !has("gui_running")
 
+
+function! rcom#screen#RcomOptions() "{{{3
+    let options = {'features': []}
+    if s:reuse
+        call add(options.features, 'reuse')
+    else
+        call add(options.features, 'history')
+    endif
+    return options
+endf
+
+
 if g:rcom#screen#method == 'screen.vim'
-
-
-    " type == 1: One-way communication
-    let s:prototype = {'type': 1}
 
 
     if !exists(':ScreenShell')
         throw "Screen plugin (http://www.vim.org/scripts/script.php?script_id=2711) is not installed."
     endif
+
+
+    " type == 1: One-way communication
+    let s:prototype = {'type': 1}
+    let s:prototype.Options = function('rcom#screen#RcomOptions')
 
 
     function! s:prototype.Connect(reuse) dict "{{{3
@@ -104,6 +117,7 @@ elseif g:rcom#screen#method == 'rcom'
 
     " type == 1: One-way communication
     let s:prototype = {'type': 2}
+    let s:prototype.Options = function('rcom#screen#RcomOptions')
 
 
     if !exists('g:rcom#screen#rcom_cmd')

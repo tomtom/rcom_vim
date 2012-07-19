@@ -486,7 +486,7 @@ function! rcom#Initialize(...) "{{{3
     if !has_key(s:rcom, bn)
         let fn = 'rcom#'. g:rcom#method .'#Initialize'
         " TLogVAR fn
-        try
+        " try
             let r_connection = call(fn, a:000)
             let bn = bufnr('%')
             " TLogVAR bn, r_connection
@@ -494,21 +494,61 @@ function! rcom#Initialize(...) "{{{3
                 if r_connection.Connect(g:rcom#reuse)
                     exec 'autocmd RCom BufUnload <buffer> call rcom#Quit('. bn .')'
                     let s:rcom[bn] = r_connection
-                    let r_lib = substitute(s:sfile, '\\', '/', 'g') .'/rcom/rcom_vim.R'
+                    let rcom_options = r_connection.Options()
+                    TLogVAR rcom_options
+                    let wd = s:RFilename(expand('%:p:h'))
+                    let r_lib = s:RFilename(s:sfile) .'/rcom/rcom_vim.R'
                     " TLogVAR r_lib
-                    let rcode = printf('source(%s)', string(r_lib))
+                    let rcode = [
+                                \ printf('rcom.options <- %s', s:RDict(rcom_options)),
+                                \ printf('setwd(%s)', string(wd)),
+                                \ printf('source(%s)', string(r_lib))
+                                \ ]
                     call r_connection.Evaluate(rcode, '')
                 endif
             endif
-        catch
-            if !exists('*'. fn)
-                echoerr "RCom: Unsupported method (see :help g:rcom#method):" g:rcom#method
-            else
-                echoerr "RCom: Error when loading" g:rcom#method
-            endif
-        endtry
+        " catch
+        "     if !exists('*'. fn)
+        "         echoerr "RCom: Unsupported method (see :help g:rcom#method):" g:rcom#method
+        "     else
+        "         echoerr "RCom: Error when loading" g:rcom#method
+        "     endif
+        " endtry
     endif
     return s:rcom[bn]
+endf
+
+
+function! s:RFilename(filename) "{{{3
+    return substitute(a:filename, '\\', '/', 'g')
+endf
+
+
+function! s:RVal(value) "{{{3
+    if type(a:value) == 0        " Number
+        return a:value
+    elseif type(a:value) == 1    " String
+        return string(a:value)
+    elseif type(a:value) == 3    " List
+        let rlist = map(copy(a:value), 's:RVal(v:val)')
+        return printf('c(%s)', join(rlist, ', '))
+    elseif type(a:value) == 4    " Dictionary
+        return s:RDict(a:value)
+    elseif type(a:value) == 5    " Float
+        return a:value
+    else
+        echoerr "RCOM: Unsupport value: ". string(a:value)
+    endif
+endf
+
+
+function! s:RDict(dict) "{{{3
+    let rv = []
+    for [key, val] in items(a:dict)
+        call add(rv, printf('%s = %s', string(key), s:RVal(val)))
+        unlet val
+    endfor
+    return printf('list(%s)', join(rv, ', '))
 endf
 
 
