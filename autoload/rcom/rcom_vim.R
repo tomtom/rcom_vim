@@ -7,7 +7,7 @@ if (file.access(rcom.rdata) == 0) {
 }
 
 
-if (exists('rcom.options') && rcom.options$reuse && 'history' %in% rcom.options$features) {
+if (all((c('reuse', 'history') %in% rcom.options$features) == c(FALSE, TRUE))) {
     rcom.rhistory <- paste(getwd(), '.Rhistory', sep = '/')
     if (file.access(rcom.rhistory) == 0) {
         loadhistory(rcom.rhistory)
@@ -24,7 +24,7 @@ if (!exists("rcom.quit")) {
         if (!is.null(rcom.rhistory)) {
             try(savehistory(rcom.rhistory))
         }
-        if (!rcom.options$reuse) {
+        if (!'reuse' %in% rcom.options$features) {
             q()
         }
     }
