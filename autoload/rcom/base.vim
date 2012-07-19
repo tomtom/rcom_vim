@@ -23,19 +23,26 @@ if !s:init
             def connect(reuse)
                 if @@interpreter.nil?
                     @@interpreter = RCom.new(reuse)
+                    rv = 1
+                else
+                    rv = 0
                 end
                 @@connections += 1
+                return rv
             end
 
             def disconnect
                 if @@connections > 0
                     @@connections -= 1
                 end
+                rv = 0
                 unless @@interpreter.nil?
                     if @@connections == 0
                         @@interpreter.quit
+                        rv = 1
                     end
                 end
+                return rv
             end
         end
 
@@ -73,6 +80,12 @@ if !s:init
             else
                 @rhist = nil
             end
+
+        def rcom_features
+            features = []
+            features << 'history' if @features['history']
+            features << 'reuse' if @reuse
+            return features
         end
 
         def initialize_server
@@ -213,13 +226,14 @@ CODE
     let s:prototype = {'type': 2}
 
     function! s:prototype.Connect(reuse) dict "{{{3
-        ruby RCom.connect(VIM::evaluate('a:reuse'))
-        return 1
+        ruby VIM::command(%{let rv = #{RCom.connect(VIM::evaluate('a:reuse'))}})
+        return rv
     endf
 
     function! s:prototype.Disconnect() dict "{{{3
-        ruby RCom.disconnect
-        return 1
+        ruby VIM::command(%{let rv = #{RCom.disconnect}})
+        return rv
+    endf
     endf
 
     function! s:prototype.Evaluate(rcode, mode) dict "{{{3

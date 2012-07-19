@@ -77,14 +77,15 @@ if g:rcom#screen#method == 'screen.vim'
 
     function! s:prototype.Disconnect() dict "{{{3
         let s:connected -= 1
+        let rv = 0
         if s:connected == 0
+            call self.Evaluate('rcom.quit()', '')
             if exists(':ScreenQuit')
                 ScreenQuit
-                " else
-                "     echom "RCom/Screen: ScreenQuit is undefined. No active session?"
+                let rv = 1
             endif
         endif
-        return !s:connected
+        return rv
     endf
 
 
@@ -182,16 +183,22 @@ elseif g:rcom#screen#method == 'rcom'
                 endif
             endif
             call self.Evaluate(s:RTerm(), '')
+            let rv = 1
+        else
+            let rv = 0
         endif
         let s:connected += 1
-        return s:connected
+        return rv
     endf
 
 
     function! s:prototype.Disconnect() dict "{{{3
         let s:connected -= 1
+        let rv = 0
         if s:connected == 0
+            call self.Evaluate('rcom.quit()', '')
             call s:Screen('-X kill')
+            let rv = 1
             if !s:reuse
                 call s:Screen('-wipe vimrcom')
             endif
@@ -201,7 +208,7 @@ elseif g:rcom#screen#method == 'rcom'
         elseif s:connected < 0
             let s:connected = 0
         endif
-        return !s:connected
+        return rv
     endf
 
 

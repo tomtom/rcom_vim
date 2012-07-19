@@ -222,9 +222,8 @@ function! rcom#Quit(...) "{{{3
     if has_key(s:rcom, bufnr)
         try
             let r_connection = s:GetConnection(bufnr)
-            if r_connection.Disconnect()
-                call remove(s:rcom, bufnr)
-            endif
+            call r_connection.Disconnect()
+            call remove(s:rcom, bufnr)
         catch
             call rcom#Log(v:exception)
         endtry
