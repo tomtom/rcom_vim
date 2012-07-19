@@ -58,7 +58,6 @@ if !s:init
             # debug "initialize r_options_reuse=#{r_options_reuse"
             r_send(%{options(#{r_options_reuse})}) if !r_options_reuse.empty?
             # r_send(%{options(error=function(e) {cat(e$message)})})
-            r_send(%{if (options("warn")$warn == 0) options(warn = 1)})
             d = VIM::evaluate(%{expand("%:p:h")})
             d.gsub!(/\\/, '/')
             # debug "initialize d=#{d}"

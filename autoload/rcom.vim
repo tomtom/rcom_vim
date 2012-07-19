@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-18.
-" @Revision:    670
+" @Last Change: 2012-07-19.
+" @Revision:    685
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -57,7 +57,7 @@ endif
 
 if !exists('g:rcom#options')
     " Inital set of commands to send to R.
-    let g:rcom#options = ''   "{{{2
+    let g:rcom#options = 'warn = 1'   "{{{2
 endif
 
 
