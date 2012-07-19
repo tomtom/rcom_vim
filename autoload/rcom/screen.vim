@@ -3,7 +3,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
 " @Last Change: 2012-07-19.
-" @Revision:    385
+" @Revision:    414
 
 
 if !exists('g:rcom#screen#method')
@@ -79,6 +79,7 @@ if g:rcom#screen#method == 'screen.vim'
 
 
     function! s:prototype.Connect(reuse) dict "{{{3
+        " TLogVAR a:reuse
         if s:connected == 0
             let s:reuse = a:reuse
             call screen#ScreenShell(s:RTerm(), 'horizontal')
@@ -146,9 +147,9 @@ elseif g:rcom#screen#method == 'rcom'
         let g:rcom#screen#rcom_shell =  ''   "{{{2
         if has('gui_running')
             if (has('win32') || has('win64'))
-                let g:rcom#screen#rcom_shell = ' start "" mintty'
+                let g:rcom#screen#rcom_shell = ' start "" mintty %s'
             elseif executable('gnome-terminal')
-                let g:rcom#screen#rcom_shell = 'gnome-terminal -x'
+                let g:rcom#screen#rcom_shell = 'gnome-terminal -x %s &'
             endif
         endif
     endif
@@ -232,6 +233,7 @@ elseif g:rcom#screen#method == 'rcom'
 
 
     function! s:prototype.Evaluate(rcode, mode) dict "{{{3
+        " TLogVAR a:rcode, a:mode
         let rv = ''
         let rcode = repeat([''], g:rcom#screen#rcom_sep) + s:RCode(a:rcode, a:mode)
         if empty(s:tempfile)
@@ -277,10 +279,11 @@ elseif g:rcom#screen#method == 'rcom'
     function! s:ScreenCmd(initial, args) "{{{3
         " TLogVAR a:initial, a:args
         let eval = '-X eval'
+        let shell = 0
         if a:initial
             if has("gui_running") || !empty(g:rcom#screen#rcom_shell)
+                let shell = 1
                 let cmd = [
-                            \ g:rcom#screen#rcom_shell,
                             \ g:rcom#screen#rcom_cmd,
                             \ s:ScreenSession(),
                             \ '-t rcom'
@@ -288,6 +291,7 @@ elseif g:rcom#screen#method == 'rcom'
                 if !s:reuse
                     call add(cmd, '-d -R')
                 endif
+                " call add(cmd, '-X partial on')
             elseif $TERM =~ '^screen'
                 let cmd = [g:rcom#screen#rcom_cmd,
                             \ s:ScreenSession(),
@@ -316,6 +320,9 @@ elseif g:rcom#screen#method == 'rcom'
             endif
         endif
         let cmdline = join(cmd)
+        if shell
+            let cmdline = printf(g:rcom#screen#rcom_shell, cmdline)
+        endif
         " TLogVAR cmdline
         return cmdline
     endf
