@@ -234,7 +234,9 @@ elseif g:rcom#screen#method == 'rcom'
     function! s:prototype.Evaluate(rcode, mode) dict "{{{3
         let rv = ''
         let rcode = repeat([''], g:rcom#screen#rcom_sep) + s:RCode(a:rcode, a:mode)
-        let s:tempfile = substitute(tempname(), '\\', '/', 'g')
+        if empty(s:tempfile)
+            let s:tempfile = substitute(tempname(), '\\', '/', 'g')
+        endif
         if a:mode == 'r'
             call add(rcode,
                         \ printf('writeLines(as.character(.Last.value), con = "%s")',
