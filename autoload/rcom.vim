@@ -3,7 +3,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
 " @Last Change: 2012-07-19.
-" @Revision:    685
+" @Revision:    686
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -495,7 +495,7 @@ function! rcom#Initialize(...) "{{{3
                     exec 'autocmd RCom BufUnload <buffer> call rcom#Quit('. bn .')'
                     let s:rcom[bn] = r_connection
                     let rcom_options = r_connection.Options()
-                    TLogVAR rcom_options
+                    " TLogVAR rcom_options
                     let wd = s:RFilename(expand('%:p:h'))
                     let r_lib = s:RFilename(s:sfile) .'/rcom/rcom_vim.R'
                     " TLogVAR r_lib
