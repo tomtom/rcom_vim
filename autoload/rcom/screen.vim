@@ -252,6 +252,7 @@ elseif g:rcom#screen#method == 'rcom'
         " TLogVAR rcode
         call writefile(rcode, s:tempfile)
         let ftime = getftime(s:tempfile)
+        let fsize = getfsize(s:tempfile)
         let cmd = '-X eval '
                     \ . ' "msgminwait 0"'
                     \ . ' "msgwait 0"'
@@ -261,7 +262,7 @@ elseif g:rcom#screen#method == 'rcom'
                     \ . ' "at rcom paste ."'
                     " \ . ' "at rcom redisplay"'
         if a:mode != 'r'
-            let cmd .= ' "register a rcom"'
+            let cmd .= printf(' "register a rcom%s"', fsize == 4 ? '_' : '')
                         \ . ' "paste a ."'
                         \ . ' writebuf'
         endif
@@ -269,8 +270,10 @@ elseif g:rcom#screen#method == 'rcom'
         call s:Screen(cmd)
         for i in range(g:rcom#screen#rcom_timeout * 5)
             sleep 200m
-            " echom "DBG Evaluate" filereadable(s:tempfile) ftime getftime(s:tempfile)
-            if filereadable(s:tempfile) && ftime != getftime(s:tempfile)
+            " echom "DBG Evaluate" filereadable(s:tempfile) ftime getftime(s:tempfile) fsize getfsize(s:tempfile)
+            " echom "DBG Evaluate" string(rcode) string(readfile(s:tempfile))
+            if fsize != getfsize(s:tempfile) || ftime != getftime(s:tempfile)
+                        \ || (a:mode == 'r' && i % 5 == 0 && readfile(s:tempfile) != rcode)
                 if a:mode == 'r'
                     let rv = join(readfile(s:tempfile), "\n")
                     break
