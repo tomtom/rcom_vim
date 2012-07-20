@@ -2,12 +2,17 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-16.
-" @Revision:    149
+" @Last Change: 2012-07-20.
+" @Revision:    151
 " GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
 set cpo&vim
+
+if !exists('g:loaded_rcom')
+    let g:loaded_rcom = 3
+endif
+
 
 if !exists('g:rcom_r_plugin_compatibility')
     let g:rcom_r_plugin_compatibility = 0   "{{{2
