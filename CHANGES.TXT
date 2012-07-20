@@ -1,0 +1,41 @@
+version: "0.03"
+  - .gitignore
+  - g:rcom_r_plugin_compatibility: Use maps somewhat similar to the r-plugin (untested)
+  - Support alternative methods to connect to R: rserve and screen/tmux
+  - RDebug/RUndebug commands
+  - screen: rcom's own simplified method to use screen (now the default method)
+  - Method = screen: Support for gvim @ linux & gnome-terminal
+  - g:rcom#reuse = g:rcom#method == 'rcom'
+  - g:rcom#r_object_browser = 'str'
+  - Use rcom_vim.R
+  - g:rcom#screen#rterm = executable('Rterm') ? 'Rterm --ess' : 'R'
+  - s:reuse = g:rcom#reuse || !has("gui_running")
+  - g:rcom#screen#rcom_session replaces g:rcom#screen#rcom_args
+  - g:rcom#screen#rcom_sep = 0
+  - Make rcom/screen work also on the terminal
+  - s:Scratch() takes buffer "type" as an argument
+  - rcom#EvaluateInBuffer(): Show the transcript if the transcript buffer is visible or when running vim as server
+  - Highlight debugged functions
+  - rcom#Debug(fn): Toggle the debug status
+  - g:rcom#options = 'warn = 1'
+  - Connect & Disconnect return 1 when they created / closed an instance of R
+  - rcom.options
+  - screen/rcom: Better timing; make sure not to miss commands
+  - screen/rcom: set s:tempfile only once
+  - rcom_vim.R
+  - rcom_vim.R: Fixed checks for "reuse"
+  - g:rcom#screen#rcom_shell is a format string
+  - Improved timing (use msgwait=0 and sleep for g:rcom#screen#rcom_shell seconds in order not to miss a subsequent eval)
+  - rcom#Quit(): Remove buffer-local autocommand
+  - rcom/screen: set msgwait & msgminwait to 0 (reset on disconnect)
+  - rcom/screen: When waiting for a response, also check the file size &, if mode == 'r', the file content
+  - g:rcom#options: if has('gui_running') set help_type = "html"
+  - rcom.complete()
+  - rcom#Keyword(): Pass name and name as string as argument
+  - rcom#Info(): Call rcom#EvaluateInBuffer() with mode = ''
+  - Fix missed disconnect when using multiple R buffers
+  - Filename conversion (e.g. via cygpath)
+  - screen/rcom: Always use -S for gvim
+  - rcom/screen: Run -wipe with session info
+  MD5 checksum: f45fe4fdf1e8876ec0549e7572026227
+
