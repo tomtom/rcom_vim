@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
-" @Last Change: 2012-07-19.
-" @Revision:    414
+" @Last Change: 2012-07-20.
+" @Revision:    428
 
 
 if !exists('g:rcom#screen#method')
@@ -220,6 +220,7 @@ elseif g:rcom#screen#method == 'rcom'
         let rv = 0
         if s:connected == 0
             call self.Evaluate('rcom.quit()', '')
+            call s:Screen('-X eval "msgwait 5" "msgminwait 1"')
             call s:Screen('-X kill')
             let rv = 1
             if !s:reuse
@@ -252,6 +253,7 @@ elseif g:rcom#screen#method == 'rcom'
         call writefile(rcode, s:tempfile)
         let ftime = getftime(s:tempfile)
         let cmd = '-X eval '
+                    \ . ' "msgminwait 0"'
                     \ . ' "msgwait 0"'
                     \ . (g:rcom#screen#rcom_clear ? ' "at rcom clear"' : '')
                     \ . printf(' "bufferfile ''%s''"', s:tempfile)
