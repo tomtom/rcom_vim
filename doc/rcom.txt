@@ -12,7 +12,6 @@ After installation, interaction with R is enabled for all
 buffers with filetype r. For other filetypes, you can use the
 functions |rcom#EvaluateInBuffer()|.
 
-
 Features:
 
     - Evaluate R code
@@ -24,6 +23,9 @@ The following features are supported only with some methods:
 
     - Omnicompletion for R
     - Get return values from R
+
+Why use this plugin instead of r-plugin? It's hopefully easier to install, 
+easier to use.
 
 
 Caveats:
@@ -190,7 +192,7 @@ g:rcom#reuse                   (default: g:rcom#method == 'rcom')
        1 ... Re-use a running instance of R GUI (default)
 
                                                     *g:rcom#options*
-g:rcom#options                 (default: '')
+g:rcom#options                 (default: 'warn = 1'.(has('gui_running') ? ', help_type = "html"' : ''))
     Inital set of commands to send to R.
 
                                                     *g:rcom#options_reuse_0*
