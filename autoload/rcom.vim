@@ -57,7 +57,7 @@ endif
 
 if !exists('g:rcom#options')
     " Inital set of commands to send to R.
-    let g:rcom#options = 'warn = 1'   "{{{2
+    let g:rcom#options = 'warn = 1'.(has('gui_running') ? ', help_type = "html"' : '')  "{{{2
 endif
 
 
