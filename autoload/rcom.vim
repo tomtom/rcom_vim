@@ -3,7 +3,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
 " @Last Change: 2012-07-20.
-" @Revision:    698
+" @Revision:    734
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -218,11 +218,13 @@ function! rcom#Quit(...) "{{{3
             let bufnr = bufnr('%')
         endif
     endif
-    " TLogVAR bufnr
+    " TLogVAR bufnr, bufname(bufnr)
     if has_key(s:rcom, bufnr)
         try
             let r_connection = s:GetConnection(bufnr)
-            call r_connection.Disconnect()
+            " TLogVAR r_connection
+            let closed = r_connection.Disconnect()
+            " TLogVAR closed
             call remove(s:rcom, bufnr)
             exec printf('autocmd! RCom BufUnload <buffer=%s>', bufnr)
         catch
@@ -493,34 +495,29 @@ function! rcom#Initialize(...) "{{{3
     if !has_key(s:rcom, bn)
         let fn = 'rcom#'. g:rcom#method .'#Initialize'
         " TLogVAR fn
-        " try
-            let r_connection = call(fn, a:000)
-            let bn = bufnr('%')
-            " TLogVAR bn, r_connection
-            if !has_key(s:rcom, bn)
-                if r_connection.Connect(g:rcom#reuse)
-                    exec 'autocmd RCom BufUnload <buffer> call rcom#Quit('. bn .')'
-                    let s:rcom[bn] = r_connection
-                    let rcom_options = r_connection.Options()
-                    " TLogVAR rcom_options
-                    let wd = s:RFilename(expand('%:p:h'))
-                    let r_lib = s:RFilename(s:sfile) .'/rcom/rcom_vim.R'
-                    " TLogVAR r_lib
-                    let rcode = [
-                                \ printf('rcom.options <- %s', s:RDict(rcom_options)),
-                                \ printf('setwd(%s)', string(wd)),
-                                \ printf('source(%s)', string(r_lib))
-                                \ ]
-                    call r_connection.Evaluate(rcode, '')
-                endif
+        let r_connection = call(fn, a:000)
+        " TLogVAR bn, r_connection
+        if r_connection.Connect(g:rcom#reuse)
+            let rcom_options = r_connection.Options()
+            " TLogVAR rcom_options
+            let wd = s:RFilename(expand('%:p:h'))
+            let r_lib = s:RFilename(s:sfile) .'/rcom/rcom_vim.R'
+            " TLogVAR r_lib
+            let rcode = [printf('rcom.options <- %s', s:RDict(rcom_options))]
+            if !empty(g:rcom#options)
+                call add(rcode, printf('options(%s)', g:rcom#options))
             endif
-        " catch
-        "     if !exists('*'. fn)
-        "         echoerr "RCom: Unsupported method (see :help g:rcom#method):" g:rcom#method
-        "     else
-        "         echoerr "RCom: Error when loading" g:rcom#method
-        "     endif
-        " endtry
+            let options_reuse = g:rcom#options_reuse_{g:rcom#reuse}
+            if !empty(options_reuse)
+                call add(rcode, printf('options(%s)', options_reuse))
+            endif
+            let rcode += [printf('setwd(%s)', string(wd)),
+                        \ printf('source(%s)', string(r_lib))
+                        \ ]
+            call r_connection.Evaluate(rcode, '')
+        endif
+        exec 'autocmd RCom BufUnload <buffer> call rcom#Quit('. bn .')'
+        let s:rcom[bn] = r_connection
     endif
     return s:rcom[bn]
 endf
@@ -618,6 +615,7 @@ endf
 "   p ... Print the result
 "   r ... Always return a result
 function! rcom#Evaluate(rcode, ...) "{{{3
+    " TLogVAR a:rcode, a:000
     let mode = a:0 >= 1 ? a:1 : ''
     if type(a:rcode) == 3
         let rcode = join(a:rcode, "\n")
@@ -646,6 +644,7 @@ endf
 "
 " See also |rcom#Evaluate()|.
 function! rcom#EvaluateInBuffer(...) range "{{{3
+    " TLogVAR a:000
     let len = type(a:1) == 3 ? len(a:1) : 1
     redraw
     " echo
