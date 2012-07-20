@@ -34,6 +34,20 @@ if (!exists("rcom.quit")) {
 if (!exists("rcom.help")) {
     rcom.help <- function(name) {
         help(name, try.all.packages = TRUE)
+
+
+if (!exists("rcom.complete")) {
+    rcom.complete <- function(pattern, mode = '') {
+        completions <- switch(mode,
+            tskeleton = sapply(apropos(pattern), function(t) {
+                if (try(is.function(eval.parent(parse(text = t))), silent = TRUE) == TRUE)
+                    sprintf("%s(<+CURSOR+>)", t)
+                else
+                    t
+                }),
+            apropos(pattern)
+        )
+        paste(completions, collapse = "\n")
     }
 }
 

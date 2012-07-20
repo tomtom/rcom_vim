@@ -255,11 +255,10 @@ function! rcom#Complete(findstart, base) "{{{3
         let r_connection = rcom#Initialize(g:rcom#reuse)
         " TLogVAR r_connection
         if r_connection.type == 2
-            if exists('w:tskeleton_hypercomplete')
-                let completions = rcom#Evaluate(['paste(sapply(apropos("^'. s:Escape2(a:base, '^$.*\[]~"') .'"), function(t) {if (try(is.function(eval.parent(parse(text = t))), silent = TRUE) == TRUE) sprintf("%s(<+CURSOR+>)", t) else t}), collapse="\n")'], 'r')
-            else
-                let completions = rcom#Evaluate(['paste(apropos("^'. s:Escape2(a:base, '^$.*\[]~"') .'"), collapse="\n")'], 'r')
-            endif
+            let rcode = printf('rcom.complete(%s, %s)',
+                        \ string('^'. s:Escape2(a:base, '^$.*\[]~"')),
+                        \ string(exists('w:tskeleton_hypercomplete') ? 'tskeleton' : ''))
+            let completions = rcom#Evaluate([rcode], 'r')
             " TLogVAR completions
             let clist = split(completions, '\n')
             " TLogVAR clist
