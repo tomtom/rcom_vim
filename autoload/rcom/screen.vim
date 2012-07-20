@@ -3,7 +3,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
 " @Last Change: 2012-07-20.
-" @Revision:    433
+" @Revision:    447
 
 
 if !exists('g:rcom#screen#method')
@@ -236,7 +236,7 @@ elseif g:rcom#screen#method == 'rcom'
             call s:Screen('-X kill')
             let rv = 1
             if !s:reuse
-                call s:Screen('-wipe vimrcom')
+                call s:Screen('-wipe '. g:rcom#screen#rcom_session)
             endif
             if !empty(s:tempfile) && filereadable(s:tempfile)
                 call delete(s:tempfile)
