@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-06-21.
-" @Last Change: 2012-07-19.
-" @Revision:    0.0.110
+" @Last Change: 2012-07-20.
+" @Revision:    0.0.111
 
 
 let s:init = 0
@@ -58,13 +58,6 @@ if !s:init
             else
                 throw "Unsupported R reuse mode: #{@reuse}"
             end
-            r_options = VIM::evaluate("g:rcom#options")
-            # debug "initialize r_options=#{r_options}"
-            r_send(%{options(#{r_options})}) if !r_options.empty?
-            r_options_reuse = VIM::evaluate("g:rcom#options_reuse_#{VIM::evaluate("g:rcom#reuse")}")
-            # debug "initialize r_options_reuse=#{r_options_reuse"
-            r_send(%{options(#{r_options_reuse})}) if !r_options_reuse.empty?
-            # r_send(%{options(error=function(e) {cat(e$message)})})
         end
 
         def rcom_features
