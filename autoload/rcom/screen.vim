@@ -363,7 +363,7 @@ elseif g:rcom#screen#method == 'rcom'
 
 
     function! s:ScreenSession() "{{{3
-        return s:reuse ? '' : ('-S '. g:rcom#screen#rcom_session)
+        return has('gui_running') ? ('-S '. g:rcom#screen#rcom_session) : ''
     endf
 
 
