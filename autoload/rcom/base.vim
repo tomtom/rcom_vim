@@ -3,7 +3,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-06-21.
 " @Last Change: 2012-07-20.
-" @Revision:    0.0.111
+" @Revision:    0.0.112
 
 
 let s:init = 0
@@ -227,6 +227,10 @@ CODE
             VIM.command(%{let value=#{(value || '').inspect}})
 CODE
         return value
+    endf
+
+    function! s:prototype.Filename(filename) dict "{{{3
+        return a:filename
     endf
 
 

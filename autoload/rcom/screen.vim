@@ -112,6 +112,10 @@ if g:rcom#screen#method == 'screen.vim'
         return ''
     endf
 
+    function! s:prototype.Filename(filename) dict "{{{3
+        return a:filename
+    endf
+
 
 elseif g:rcom#screen#method == 'rcom'
 
@@ -186,6 +190,13 @@ elseif g:rcom#screen#method == 'rcom'
     endif
 
 
+    if !exists('g:rcom#screen#convert_path')
+        " If non-empty, use this command to convert paths that are 
+        " passed on to R.
+        let g:rcom#screen#convert_path = (has('win32unix') && g:rcom#screen#rterm =~# 'Rterm') ? 'cygpath -m %s' : ''  "{{{2
+    endif
+
+
     let s:tempfile = ''
 
 
@@ -247,7 +258,7 @@ elseif g:rcom#screen#method == 'rcom'
         if a:mode == 'r'
             call add(rcode,
                         \ printf('writeLines(as.character(.Last.value), con = "%s")',
-                        \     escape(s:tempfile, '"\'))
+                        \     escape(self.Filename(s:tempfile), '"\'))
                         \ )
         endif
         " TLogVAR rcode
@@ -284,6 +295,18 @@ elseif g:rcom#screen#method == 'rcom'
             endif
         endfor
         return rv
+    endf
+
+
+    function! s:prototype.Filename(filename) dict "{{{3
+        if empty(g:rcom#screen#convert_path)
+            return a:filename
+        else
+            let cmd = printf(g:rcom#screen#convert_path, shellescape(a:filename))
+            let filename = system(cmd)
+            " TLogVAR cmd, filename
+            return filename
+        endif
     endf
 
 
