@@ -274,7 +274,14 @@ endf
 function! rcom#Keyword(...) "{{{3
     let word = a:0 >= 1 && !empty(a:1) ? a:1 : expand("<cword>")
     " TLogVAR word
-    call rcom#EvaluateInBuffer(printf('rcom.keyword(%s)', word))
+    if word =~ '^\(if\|else\|repeat\|while\|function\|for\|in\|next\|break\|[[:punct:]]\)$'
+        let name = string(word)
+        let namestring = '""'
+    else
+        let name = word
+        let namestring = string(word)
+    endif
+    call rcom#EvaluateInBuffer(printf('rcom.keyword(%s, %s)', name, namestring), '')
 endf
 
 

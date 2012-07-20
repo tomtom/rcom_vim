@@ -32,8 +32,10 @@ if (!exists("rcom.quit")) {
 
 
 if (!exists("rcom.help")) {
-    rcom.help <- function(name) {
-        help(name, try.all.packages = TRUE)
+    rcom.help <- function(name.string) {
+        help((name.string), try.all.packages = TRUE)
+    }
+}
 
 
 if (!exists("rcom.complete")) {
@@ -53,9 +55,11 @@ if (!exists("rcom.complete")) {
 
 
 if (!exists("rcom.keyword")) {
-    rcom.keyword <- function(name) {
-        if (mode(name) == "function") {
+    rcom.keyword <- function(name, name.string) {
+        if (name.string == '') {
             rcom.help(name)
+        } else if (mode(name) == 'function') {
+            rcom.help(name.string)
         } else {
             str(name)
         }
@@ -76,10 +80,11 @@ if (!exists("rcom.inspect")) {
 
 if (!exists("rcom.info")) {
     rcom.info <- function(name) {
-        switch(name,
-            "function" = rcom.help(name),
+        if (mode(name) == 'function') {
+            rcom.help(name)
+        } else {
             rcom.inspect(name)
-        )
+        }
     }
 }
 
