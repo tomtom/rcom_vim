@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-19.
-" @Revision:    686
+" @Last Change: 2012-07-20.
+" @Revision:    698
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -224,12 +224,13 @@ function! rcom#Quit(...) "{{{3
             let r_connection = s:GetConnection(bufnr)
             call r_connection.Disconnect()
             call remove(s:rcom, bufnr)
+            exec printf('autocmd! RCom BufUnload <buffer=%s>', bufnr)
         catch
             call rcom#Log(v:exception)
         endtry
     else
         " echom "DBG ". string(keys(s:rcom))
-        call rcom#Log("RCOm: Not an R buffer. Call rcom#Initialize() first.")
+        call rcom#Log("RCom: Not an R buffer. Call rcom#Initialize() first.")
     endif
 endf
 
