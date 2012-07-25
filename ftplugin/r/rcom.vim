@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-20.
-" @Revision:    151
+" @Last Change: 2012-07-25.
+" @Revision:    152
 " GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -78,8 +78,8 @@ endif
 " See |rcom#Keyword()| and |K|.
 nnoremap <buffer> K :call rcom#Keyword()<cr>
 
-" Inspect an R object -- see |rcom#Info()|.
-nnoremap <buffer> <LocalLeader>K :call rcom#Info()<cr>
+" Inspect an R object -- see |rcom#Inspect()|.
+nnoremap <buffer> <LocalLeader>K :call rcom#Inspect()<cr>
 
 
 " if !hasmapto(':call rcom#EvaluateInBuffer(', 'n')

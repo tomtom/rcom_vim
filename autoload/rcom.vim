@@ -295,10 +295,10 @@ endf
 
 
 " Inspect the word under the cursor.
-function! rcom#Info(...) "{{{3
+function! rcom#Inspect(...) "{{{3
     let word = a:0 >= 1 && !empty(a:1) ? a:1 : expand("<cword>")
     " TLogVAR word
-    call rcom#EvaluateInBuffer(printf('rcom.info(%s)', string(word)), '')
+    call rcom#EvaluateInBuffer(printf('rcom.inspect(%s)', word), '')
 endf
 
 

@@ -67,24 +67,25 @@ if (!exists("rcom.keyword")) {
 }
 
 
-if (!exists("rcom.inspect")) {
-    rcom.inspect <- function(name) {
-        if (exists('gvarbrowser')) {
-            gvarbrowser(name)
-        } else {
-            str(name)
-        }
-    }
+if (!exists("rcom.inspect.data.frame")) {
+    rcom.inspect.data.frame <- fix
 }
 
+if (!exists("rcom.inspect.matrix")) {
+    rcom.inspect.matrix <- fix
+}
 
-if (!exists("rcom.info")) {
-    rcom.info <- function(name) {
-        if (mode(name) == 'function') {
-            rcom.help(name)
-        } else {
-            rcom.inspect(name)
-        }
+if (!exists("rcom.inspect.function")) {
+    rcom.inspect.function <- fix
+}
+
+if (!exists("rcom.inspect.default")) {
+    rcom.inspect.default <- if (exists('gvarbrowser')) gvarbrowser else str
+}
+
+if (!exists("rcom.inspect")) {
+    rcom.inspect <- function(name) {
+        UseMethod("rcom.inspect")
     }
 }
 
