@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-20.
-" @Revision:    737
+" @Last Change: 2012-07-25.
+" @Revision:    746
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -76,6 +76,13 @@ endif
 if !exists('g:rcom#r_object_browser')
     " Default object browser.
     let g:rcom#r_object_browser = 'str'   "{{{2
+endif
+
+
+if !exists('g:rcom#editor')
+    " The editor used to quickly edit R code.
+    " If non-empty, this will set R's editor option.
+    let g:rcom#editor = v:progname =~ '\<gvim\>' ? (v:progname .' --remote-wait') : v:progname  "{{{2
 endif
 
 
@@ -506,6 +513,9 @@ function! rcom#Initialize(...) "{{{3
             let rcode = [printf('rcom.options <- %s', s:RDict(rcom_options))]
             if !empty(g:rcom#options)
                 call add(rcode, printf('options(%s)', g:rcom#options))
+            endif
+            if !empty(g:rcom#editor)
+                call add(rcode, printf('options(editor = %s)', string(g:rcom#editor)))
             endif
             let options_reuse = g:rcom#options_reuse_{g:rcom#reuse}
             if !empty(options_reuse)
