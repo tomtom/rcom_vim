@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-25.
-" @Revision:    152
+" @Last Change: 2012-09-03.
+" @Revision:    155
 " GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -126,6 +126,12 @@ if !empty(g:rcom_mapop)
     exec 'nnoremap <buffer> '. g:rcom_mapop .'t :call rcom#TranscriptBuffer()<cr>'
 endif
 
+
+" :display: RQuit
+" Buffer-local command.
+" Quit the current R session for the current buffer. This doesn't 
+" necessarily close the R session.
+command! -buffer -nargs=? RQuit    call rcom#Quit()
 
 " :display: RDebug [FUNCTION]
 " Buffer-local command.
