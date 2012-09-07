@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
-" @Last Change: 2012-07-20.
-" @Revision:    447
+" @Last Change: 2012-09-04.
+" @Revision:    499
 
 
 if !exists('g:rcom#screen#method')
@@ -182,6 +182,13 @@ elseif g:rcom#screen#method == 'rcom'
         let g:rcom#screen#rcom_sep = 0   "{{{2
     endif
 
+    
+    if !exists('g:rcom#screen#rcom_send_after')
+        " A key sequence sent to the terminal via screen's stuff command 
+        " after evaluating R code.
+        let g:rcom#screen#rcom_send_after = '\15\15'   "{{{2
+    endif
+
 
     if !exists('g:rcom#screen#rcom_timeout')
         " Timeout when waiting for an R command to finish to retrieve 
@@ -194,6 +201,11 @@ elseif g:rcom#screen#method == 'rcom'
         " If non-empty, use this command to convert paths that are 
         " passed on to R.
         let g:rcom#screen#convert_path = (has('win32unix') && g:rcom#screen#rterm =~# 'Rterm') ? 'cygpath -m %s' : ''  "{{{2
+    endif
+
+
+    if !exists('g:rcom#screen#rcom_maxsize')
+        let g:rcom#screen#rcom_maxsize = 2048   "{{{2
     endif
 
 
@@ -250,7 +262,6 @@ elseif g:rcom#screen#method == 'rcom'
 
     function! s:prototype.Evaluate(rcode, mode) dict "{{{3
         " TLogVAR a:rcode, a:mode
-        let rv = ''
         let rcode = repeat([''], g:rcom#screen#rcom_sep) + s:RCode(a:rcode, a:mode)
         if empty(s:tempfile)
             let s:tempfile = substitute(tempname(), '\\', '/', 'g')
@@ -262,10 +273,7 @@ elseif g:rcom#screen#method == 'rcom'
                         \ )
         endif
         " TLogVAR rcode
-        call writefile(rcode, s:tempfile)
-        let ftime = getftime(s:tempfile)
-        let fsize = getfsize(s:tempfile)
-        let cmd = '-X eval '
+        let cmd0 = '-X eval '
                     \ . ' "msgminwait 0"'
                     \ . ' "msgwait 0"'
                     \ . (g:rcom#screen#rcom_clear ? ' "at rcom clear"' : '')
@@ -273,28 +281,66 @@ elseif g:rcom#screen#method == 'rcom'
                     \ . ' readbuf'
                     \ . ' "at rcom paste ."'
                     " \ . ' "at rcom redisplay"'
-        if a:mode != 'r'
-            let cmd .= printf(' "register a rcom%s"', fsize == 4 ? '_' : '')
-                        \ . ' "paste a ."'
-                        \ . ' writebuf'
-        endif
-        " TLogVAR cmd
-        call s:Screen(cmd)
-        for i in range(g:rcom#screen#rcom_timeout * 5)
-            sleep 200m
-            " echom "DBG Evaluate" filereadable(s:tempfile) ftime getftime(s:tempfile) fsize getfsize(s:tempfile)
-            " echom "DBG Evaluate" string(rcode) string(readfile(s:tempfile))
-            if fsize != getfsize(s:tempfile) || ftime != getftime(s:tempfile)
-                        \ || (a:mode == 'r' && i % 5 == 0 && readfile(s:tempfile) != rcode)
-                if a:mode == 'r'
-                    let rv = join(readfile(s:tempfile), "\n")
-                    break
-                else
-                    break
-                endif
+        " TLogVAR cmd0
+
+        let parts = []
+        let part = []
+        let part_size = 0
+        for line in rcode
+            let llen = strlen(line)
+            if part_size + llen > g:rcom#screen#rcom_maxsize
+                call add(parts, part)
+                let part = []
+                let part_size = 0
             endif
+            call add(part, line)
+            let part_size += llen
         endfor
-        return rv
+        call add(parts, part)
+        " TLogVAR parts
+
+        " echohl Special
+        " echo "RCOM/screen: Sending rcode ... Please wait"
+        " echohl NONE
+        let result = []
+        for part in parts
+            " TLogVAR part
+            call writefile(part, s:tempfile)
+            let ftime = getftime(s:tempfile)
+            let fsize = getfsize(s:tempfile)
+            if a:mode == 'r'
+                let cmd = cmd0
+            else
+                let cmd = cmd0 . printf(' "register a rcom%s"', fsize == 4 ? '_' : '')
+                            \ . ' "paste a ."'
+                            \ . ' writebuf'
+            endif
+            " TLogVAR cmd
+            call s:Screen(cmd)
+            for i in range(g:rcom#screen#rcom_timeout * 5)
+                sleep 200m
+                " echom "DBG Evaluate" filereadable(s:tempfile) ftime getftime(s:tempfile) fsize getfsize(s:tempfile)
+                " echom "DBG Evaluate" string(rcode) string(readfile(s:tempfile))
+                if fsize != getfsize(s:tempfile) || ftime != getftime(s:tempfile)
+                            \ || (a:mode == 'r' && i % 5 == 0 && readfile(s:tempfile) != rcode)
+                    if a:mode == 'r'
+                        let result += readfile(s:tempfile)
+                        " TLogVAR 1, len(result)
+                        break
+                    else
+                        break
+                    endif
+                endif
+            endfor
+        endfor
+        if !empty(g:rcom#screen#rcom_send_after)
+            " TLogVAR g:rcom#screen#rcom_send_after
+            call s:Screen('-X "stuff '. escape(g:rcom#screen#rcom_send_after, '"') .'"')
+        endif
+        " redraw
+        " echo
+        " TLogVAR result
+        return join(result, "\n")
     endf
 
 
@@ -368,6 +414,7 @@ elseif g:rcom#screen#method == 'rcom'
 
 
     function! s:Screen(cmd) "{{{3
+        " TLogVAR a:cmd
         let cmd = s:ScreenCmd(0, a:cmd)
         " TLogVAR cmd
         if has("win32unix")
