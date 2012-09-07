@@ -179,6 +179,7 @@ Contents~
         g:rcom_mapop .................... |g:rcom_mapop|
         n_K ............................. |rcom-map-n_K|
         n_<LocalLeader>K ................ |rcom-map-n_<LocalLeader>K|
+        :RQuit .......................... |rcom-map-:RQuit|
         :RDebug ......................... |rcom-map-:RDebug|
         :RUndebug ....................... |rcom-map-:RUndebug|
 
@@ -393,6 +394,12 @@ n_K ... :call rcom#Keyword()<cr>
                                                     *rcom-map-n_<LocalLeader>K*
 n_<LocalLeader>K ... :call rcom#Inspect()<cr>
     Inspect an R object -- see |rcom#Inspect()|.
+
+                                                    *rcom-map-:RQuit*
+RQuit
+    Buffer-local command.
+    Quit the current R session for the current buffer. This doesn't 
+    necessarily close the R session.
 
                                                     *rcom-map-:RDebug*
 RDebug [FUNCTION]
