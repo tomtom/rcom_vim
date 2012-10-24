@@ -2,12 +2,9 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-07-25.
-" @Revision:    746
+" @Last Change: 2012-10-22.
+" @Revision:    756
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
-
-let s:save_cpo = &cpo
-set cpo&vim
 
 if !exists('loaded_rcom')
     let loaded_rcom = 3
@@ -683,5 +680,3 @@ function! rcom#EvaluateInBuffer(...) range "{{{3
 endf
 
 
-let &cpo = s:save_cpo
-unlet s:save_cpo
