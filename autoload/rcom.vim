@@ -680,3 +680,12 @@ function! rcom#EvaluateInBuffer(...) range "{{{3
 endf
 
 
+function! rcom#SourceBuffer(bufnr) "{{{3
+    if !&modified && !empty(bufname(a:bufnr)) && getbufvar(a:bufnr, '&ft') == 'r' && getbufvar(a:bufnr, '&buftype') !~ 'nofile'
+        let r_connection = rcom#Initialize(g:rcom#reuse)
+        let filename = fnamemodify(bufname(a:bufnr), ':p')
+        let r_filename = r_connection.Filename(filename)
+        call rcom#EvaluateInBuffer(printf('source(%s)', string(escape(r_filename, '\'))))
+    endif
+endf
+

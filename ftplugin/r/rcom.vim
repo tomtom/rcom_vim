@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-09-03.
-" @Revision:    155
+" @Last Change: 2012-10-23.
+" @Revision:    160
 " GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -46,16 +46,16 @@ else
         " The rcom operator map.
         " Set this to "", to prevent rcom from defining maps.
         "
-        " This defines the following maps (where # represents the value of 
+        " This defines the following maps (where "+" represents the value of 
         " g:rcom_mapop):
         "
-        "     #{motion} ... Operator
-        "     #.        ... Evaluate the current line (normal mode)
-        "     [visual]# ... Evaluate the visual area
-        "     #p        ... Toggle printing for the above maps
-        "     #d        ... Toggle a function's debug status
-        "     #l        ... Open the log window
-        "     ##        ... Evaluate the |maparg| previously mapped to #
+        "     +{motion} ... Operator
+        "     +.        ... Evaluate the current line (normal mode)
+        "     [visual]+ ... Evaluate the visual area
+        "     +p        ... Toggle printing for the above maps
+        "     +d        ... Toggle a function's debug status
+        "     +l        ... Open the log window
+        "     ++        ... Evaluate the |maparg| previously mapped to #
         let g:rcom_mapop = "+"   "{{{2
     endif
 
@@ -124,6 +124,7 @@ if !empty(g:rcom_mapop)
     exec 'vnoremap <buffer> '. g:rcom_mapop .'d ""p:call rcom#Debug(@")<cr>'
     exec 'nnoremap <buffer> '. g:rcom_mapop .'l :call rcom#LogBuffer()<cr>'
     exec 'nnoremap <buffer> '. g:rcom_mapop .'t :call rcom#TranscriptBuffer()<cr>'
+    exec 'nnoremap <buffer> '. g:rcom_mapop .'s :call rcom#SourceBuffer(bufnr("%"))<cr>'
 endif
 
 
