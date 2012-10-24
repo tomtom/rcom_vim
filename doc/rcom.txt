@@ -171,6 +171,7 @@ Contents~
         rcom#Undebug .................... |rcom#Undebug()|
         rcom#Evaluate ................... |rcom#Evaluate()|
         rcom#EvaluateInBuffer ........... |rcom#EvaluateInBuffer()|
+        rcom#SourceBuffer ............... |rcom#SourceBuffer()|
         g:rcom_r_plugin_compatibility ... |g:rcom_r_plugin_compatibility|
         n_<localleader>rt ............... |n_<localleader>rt|
         n_<localleader>bb ............... |n_<localleader>bb|
@@ -348,6 +349,9 @@ rcom#EvaluateInBuffer(rcode, ?mode='')
 
     See also |rcom#Evaluate()|.
 
+                                                    *rcom#SourceBuffer()*
+rcom#SourceBuffer(bufnr)
+
 
 ========================================================================
 ftplugin/r/rcom.vim~
@@ -376,16 +380,16 @@ g:rcom_mapop                   (default: "+")
     The rcom operator map.
     Set this to "", to prevent rcom from defining maps.
 
-    This defines the following maps (where # represents the value of 
+    This defines the following maps (where "+" represents the value of 
     g:rcom_mapop):
 
-        #{motion} ... Operator
-        #.        ... Evaluate the current line (normal mode)
-        [visual]# ... Evaluate the visual area
-        #p        ... Toggle printing for the above maps
-        #d        ... Toggle a function's debug status
-        #l        ... Open the log window
-        ##        ... Evaluate the |maparg| previously mapped to #
+        +{motion} ... Operator
+        +.        ... Evaluate the current line (normal mode)
+        [visual]+ ... Evaluate the visual area
+        +p        ... Toggle printing for the above maps
+        +d        ... Toggle a function's debug status
+        +l        ... Open the log window
+        ++        ... Evaluate the |maparg| previously mapped to #
 
                                                     *rcom-map-n_K*
 n_K ... :call rcom#Keyword()<cr>
