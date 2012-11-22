@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-10-23.
-" @Revision:    160
+" @Last Change: 2012-10-25.
+" @Revision:    161
 " GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
