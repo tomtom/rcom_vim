@@ -3,7 +3,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
 " @Last Change: 2012-09-04.
-" @Revision:    499
+" @Revision:    525
 
 
 if !exists('g:rcom#screen#method')
@@ -24,8 +24,20 @@ if !exists('g:rcom#screen#method')
     let g:rcom#screen#method = 'rcom'   "{{{2
 endif
 
+if !exists('g:rcom#screen#mode')
+    " Determine how to paste code. Possible values:
+    "
+    "   1 ... Paste the code
+    "   2 ... Save the code to a file and source that file
+    " 
+    " This variable should only be changed if |g:rcom#screen#method| is 
+    " rcom.
+    let g:rcom#screen#mode = 1   "{{{2
+endif
+
+
 if !exists('g:rcom#screen#rterm')
-    let g:rcom#screen#rterm = executable('Rterm') ? 'Rterm --ess' : 'R'   "{{{2
+    let g:rcom#screen#rterm = executable('Rterm') ? 'Rterm '. (g:rcom#screen#mode == 1 ? '--ess' : '') : 'R'   "{{{2
 endif
 
 
@@ -228,7 +240,7 @@ elseif g:rcom#screen#method == 'rcom'
                     redraw!
                 endif
             endif
-            call self.Evaluate(s:RTerm(), '')
+            call self.Evaluate(s:RTerm(), 'x')
             let rv = 1
         else
             let rv = 0
@@ -253,6 +265,9 @@ elseif g:rcom#screen#method == 'rcom'
             if !empty(s:tempfile) && filereadable(s:tempfile)
                 call delete(s:tempfile)
             endif
+            if exists(s:paste_file) && filereadable(s:paste_file)
+                call delete(s:paste_file)
+            endif
         elseif s:connected < 0
             let s:connected = 0
         endif
@@ -260,6 +275,9 @@ elseif g:rcom#screen#method == 'rcom'
     endf
 
 
+    " rcode ... a list of lines of r code
+    " mode  ... r ... read the result
+    "           x ... evaluate as is (ignore |g:rcom#screen#mode|)
     function! s:prototype.Evaluate(rcode, mode) dict "{{{3
         " TLogVAR a:rcode, a:mode
         let rcode = repeat([''], g:rcom#screen#rcom_sep) + s:RCode(a:rcode, a:mode)
@@ -283,20 +301,39 @@ elseif g:rcom#screen#method == 'rcom'
                     " \ . ' "at rcom redisplay"'
         " TLogVAR cmd0
 
-        let parts = []
-        let part = []
-        let part_size = 0
-        for line in rcode
-            let llen = strlen(line)
-            if part_size + llen > g:rcom#screen#rcom_maxsize
-                call add(parts, part)
-                let part = []
-                let part_size = 0
+        if g:rcom#screen#mode == 1 || a:mode == "x"
+
+            let parts = []
+            let part = []
+            let part_size = 0
+            for line in rcode
+                let llen = strlen(line)
+                if part_size + llen > g:rcom#screen#rcom_maxsize
+                    call add(parts, part)
+                    let part = []
+                    let part_size = 0
+                endif
+                call add(part, line)
+                let part_size += llen
+            endfor
+            call add(parts, part)
+
+        elseif g:rcom#screen#mode == 2
+
+            if !exists('s:paste_file')
+                let s:paste_file = substitute(tempname(), '\\', '/', 'g')
             endif
-            call add(part, line)
-            let part_size += llen
-        endfor
-        call add(parts, part)
+            call writefile(rcode, s:paste_file)
+            let rcode0 = [printf('tryCatch(source("%s"), error = function (e) print(e))',
+                        \     escape(self.Filename(s:paste_file), '"\'))]
+            " TLogVAR rcode0
+            let rcode = repeat([''], g:rcom#screen#rcom_sep) + s:RCode(rcode0, a:mode)
+            " TLogVAR rcode
+            let parts = [rcode]
+
+        else
+            throw 'rcom/screen: g:rcom#screen#mode must be 1 or 2 but was '. g:rcom#screen#mode
+        endif
         " TLogVAR parts
 
         " echohl Special
