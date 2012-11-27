@@ -37,7 +37,7 @@ endif
 
 
 if !exists('g:rcom#screen#rterm')
-    let g:rcom#screen#rterm = executable('Rterm') ? 'Rterm '. (g:rcom#screen#mode == 1 ? '--ess' : '') : 'R'   "{{{2
+    let g:rcom#screen#rterm = executable('Rterm') ? 'Rterm --ess' : 'R'   "{{{2
 endif
 
 
