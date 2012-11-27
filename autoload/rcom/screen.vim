@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
-" @Last Change: 2012-09-04.
-" @Revision:    525
+" @Last Change: 2012-11-27.
+" @Revision:    530
 
 
 if !exists('g:rcom#screen#method')
@@ -324,7 +324,7 @@ elseif g:rcom#screen#method == 'rcom'
                 let s:paste_file = substitute(tempname(), '\\', '/', 'g')
             endif
             call writefile(rcode, s:paste_file)
-            let rcode0 = [printf('tryCatch(source("%s"), error = function (e) print(e))',
+            let rcode0 = [printf('tryCatch(source("%s"), error = print)',
                         \     escape(self.Filename(s:paste_file), '"\'))]
             " TLogVAR rcode0
             let rcode = repeat([''], g:rcom#screen#rcom_sep) + s:RCode(rcode0, a:mode)
