@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-10-22.
-" @Revision:    756
+" @Last Change: 2013-03-06.
+" @Revision:    765
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 if !exists('loaded_rcom')
@@ -229,10 +229,14 @@ function! rcom#Quit(...) "{{{3
             " TLogVAR r_connection
             let closed = r_connection.Disconnect()
             " TLogVAR closed
-            call remove(s:rcom, bufnr)
             exec printf('autocmd! RCom BufUnload <buffer=%s>', bufnr)
         catch
             call rcom#Log(v:exception)
+        finally
+            " TLogVAR bufnr
+            " echom "DBG rcom#Quit 1" has_key(s:rcom, bufnr)
+            call remove(s:rcom, bufnr)
+            " echom "DBG rcom#Quit 2" has_key(s:rcom, bufnr)
         endtry
     else
         " echom "DBG ". string(keys(s:rcom))
@@ -496,6 +500,7 @@ let s:sfile = expand('<sfile>:p:h')
 function! rcom#Initialize(...) "{{{3
     " TLogVAR a:000
     let bn = bufnr('%')
+    " echom "DBG rcom#Initialize" has_key(s:rcom, bn)
     if !has_key(s:rcom, bn)
         let fn = 'rcom#'. g:rcom#method .'#Initialize'
         " TLogVAR fn

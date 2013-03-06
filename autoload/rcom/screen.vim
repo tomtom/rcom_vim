@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
-" @Last Change: 2012-11-27.
-" @Revision:    530
+" @Last Change: 2013-03-06.
+" @Revision:    565
 
 
 if !exists('g:rcom#screen#method')
@@ -224,53 +224,50 @@ elseif g:rcom#screen#method == 'rcom'
     let s:tempfile = ''
 
 
-    function! s:prototype.Connect(reuse) dict "{{{3
-        " TLogVAR a:reuse
-        if s:connected == 0
+    function! s:prototype.Connect(reuse, ...) dict "{{{3
+        let start_rterm = a:0 >= 1 ? a:1 : 1
+        " TLogVAR a:reuse, start_rterm
+        let s:connected += 1
+        " echom "DBG Connect s:connected =" s:connected
+        if s:connected == 1
             let s:reuse = a:reuse
-            let cmd = s:ScreenCmd(1, '')
-            " TLogVAR cmd
-            if !empty(cmd)
-                exec 'silent! !'. cmd
-                if has("gui_running")
-                    if !empty(g:rcom#screen#rcom_shell)
-                        exec 'sleep' g:rcom#screen#rcom_init_wait
-                    endif
-                else
-                    redraw!
-                endif
+            call s:ScreenConnect()
+            if start_rterm
+                call self.Evaluate(s:RTerm(), 'x')
             endif
-            call self.Evaluate(s:RTerm(), 'x')
             let rv = 1
         else
             let rv = 0
         endif
-        let s:connected += 1
         return rv
     endf
 
 
     function! s:prototype.Disconnect() dict "{{{3
-        let s:connected -= 1
-        " echom "DBG Disconnect" s:connected
+        " echom "DBG Disconnect s:connected =" s:connected
         let rv = 0
-        if s:connected == 0
-            call self.Evaluate('rcom.quit()', '')
-            call s:Screen('-X eval "msgwait 5" "msgminwait 1"')
-            call s:Screen('-X kill')
-            let rv = 1
-            if !s:reuse
-                call s:Screen('-wipe '. g:rcom#screen#rcom_session)
+        try
+            if s:connected == 1
+                call self.Evaluate('rcom.quit()', '')
+                call s:Screen('-X eval "msgwait 5" "msgminwait 1"')
+                call s:Screen('-X kill')
+                let rv = 1
+                if !s:reuse
+                    call s:Screen('-wipe '. g:rcom#screen#rcom_session)
+                endif
+                if !empty(s:tempfile) && filereadable(s:tempfile)
+                    call delete(s:tempfile)
+                endif
+                if exists(s:paste_file) && filereadable(s:paste_file)
+                    call delete(s:paste_file)
+                endif
             endif
-            if !empty(s:tempfile) && filereadable(s:tempfile)
-                call delete(s:tempfile)
+        finally
+            let s:connected -= 1
+            if s:connected < 0
+                let s:connected = 0
             endif
-            if exists(s:paste_file) && filereadable(s:paste_file)
-                call delete(s:paste_file)
-            endif
-        elseif s:connected < 0
-            let s:connected = 0
-        endif
+        endtry
         return rv
     endf
 
@@ -280,6 +277,7 @@ elseif g:rcom#screen#method == 'rcom'
     "           x ... evaluate as is (ignore |g:rcom#screen#mode|)
     function! s:prototype.Evaluate(rcode, mode) dict "{{{3
         " TLogVAR a:rcode, a:mode
+        call s:ScreenEnsureAttached(self)
         let rcode = repeat([''], g:rcom#screen#rcom_sep) + s:RCode(a:rcode, a:mode)
         if empty(s:tempfile)
             let s:tempfile = substitute(tempname(), '\\', '/', 'g')
@@ -446,7 +444,40 @@ elseif g:rcom#screen#method == 'rcom'
 
 
     function! s:ScreenSession() "{{{3
-        return has('gui_running') ? ('-S '. g:rcom#screen#rcom_session) : ''
+        return has('gui_running') ? ('-D -R -S '. g:rcom#screen#rcom_session) : ''
+    endf
+
+
+    function! s:ScreenEnsureAttached(dict) "{{{3
+        " echom "DBG ScreenEnsureAttached s:connected =" s:connected
+        if s:connected == 0
+            call a:dict.Connect(s:reuse)
+        elseif has('gui_running')
+            let sessions = split(system('screen -list'), '\n')
+            let attached = filter(copy(sessions), 'v:val =~ ''^\s*\d\+\.'. g:rcom#screen#rcom_session .'\s\+(Attached)''')
+            if empty(attached)
+                " TLogVAR attached
+                let detached = filter(copy(sessions), 'v:val =~ ''^\s*\d\+\.'. g:rcom#screen#rcom_session .'\s\+(Detached)''')
+                call s:ScreenConnect()
+            endif
+        endif
+    endf
+
+
+    function! s:ScreenConnect() "{{{3
+        let cmd = s:ScreenCmd(1, '')
+        " TLogVAR cmd
+        if !empty(cmd)
+            exec 'silent! !'. cmd
+            if has("gui_running")
+                if !empty(g:rcom#screen#rcom_shell)
+                    exec 'sleep' g:rcom#screen#rcom_init_wait
+                endif
+            else
+                redraw!
+            endif
+        endif
+        call s:Screen('-wipe')
     endf
 
 
