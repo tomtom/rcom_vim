@@ -63,6 +63,8 @@ Default Maps:
     [visual]+ ... Evaluate the visual area
     +p        ... Toggle printing for the above maps
     +d        ... Toggle a function's debug status
+    +s        ... Source the current buffer in R
+    +t        ... Show the transcript buffer
     +l        ... Open the log window
     ++        ... Evaluate the |maparg| previously mapped to #
     K         ... Info on the word under cursor
