@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2012-07-10.
-" @Last Change: 2013-03-06.
-" @Revision:    565
+" @Last Change: 2013-07-18.
+" @Revision:    566
 
 
 if !exists('g:rcom#screen#method')
@@ -149,7 +149,7 @@ elseif g:rcom#screen#method == 'rcom'
 
 
     if !exists('g:rcom#screen#rcom_session')
-        let g:rcom#screen#rcom_session = 'vimrcom'   "{{{2
+        let g:rcom#screen#rcom_session = 'vimrcom_'. v:servername   "{{{2
     endif
 
 
