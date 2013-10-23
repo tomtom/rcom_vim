@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2012-10-25.
-" @Revision:    161
+" @Last Change: 2013-10-23.
+" @Revision:    163
 " GetLatestVimScripts: 2991 0 :AutoInstall: rcom.vim
 
 let s:save_cpo = &cpo
@@ -143,6 +143,10 @@ command! -buffer -nargs=? RDebug    call rcom#Debug(empty(<q-args>) ? expand("<c
 " Buffer-local command.
 " Undebug the function under cursor.
 command! -buffer -nargs=? RUndebug  call rcom#Undebug(empty(<q-args>) ? (exists('g:loaded_tlib') ? '' : expand("<cword>")) : <q-args>)
+
+" :display: RCd [DIR]
+" Change R's working directory to DIR.
+command! -buffer -nargs=? RCd call rcom#Cd(empty(<q-args>) ? expand('%:p:h') : <q-args>)
 
 
 " if !hasmapto(':call rcom#EvaluateInBuffer(', 'n')

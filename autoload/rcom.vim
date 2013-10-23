@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-02-23.
-" @Last Change: 2013-03-06.
-" @Revision:    765
+" @Last Change: 2013-10-23.
+" @Revision:    769
 " GetLatestVimScripts: 2991 1 :AutoInstall: rcom.vim
 
 if !exists('loaded_rcom')
@@ -692,5 +692,11 @@ function! rcom#SourceBuffer(bufnr) "{{{3
         let r_filename = r_connection.Filename(filename)
         call rcom#EvaluateInBuffer(printf('source(%s)', string(escape(r_filename, '\'))))
     endif
+endf
+
+
+function! rcom#Cd(dir) "{{{3
+    let dir = substitute(a:dir, '\\', '/', 'g')
+    call rcom#EvaluateInBuffer(printf('setwd(%s)', string(dir)))
 endf
 
